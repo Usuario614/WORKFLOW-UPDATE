@@ -84,3 +84,10 @@ WorkflowProof now includes a clearly scoped assisted-audit offer in the app. The
 The app's **Request an audit** buttons open an email draft to `nuvekoia@gmail.com`; no payment is collected by the app. Confirm scope, data-handling instructions and a payment method with the buyer before starting work. Never ask for credentials or live production access for the standard pilot.
 
 For a scoped n8n reliability review or a WorkflowProof pilot, contact [nuvekoia@gmail.com](mailto:nuvekoia@gmail.com). Do not email workflow exports, credentials, tokens, customer data or production URLs in the first message. Send a sanitized export only after receiving intake instructions.
+
+
+## Free accounts (v0.13)
+
+Optional Supabase-backed accounts provide two lifetime free scans per user, an account credit counter and downloadable report history. The workflow JSON remains in the browser; the generated audit report is stored in the user's Supabase account. Configure the project using [SUPABASE_SETUP.md](SUPABASE_SETUP.md) and run [supabase/schema.sql](supabase/schema.sql). Never expose a Supabase service-role key in browser environment variables.
+
+Premium checkout is not connected yet; exhausted accounts see a clear free-credit limit rather than a fake payment flow.

@@ -87,3 +87,32 @@
 .dashboard-offer span{font-size:12px;color:#9aa994;line-height:1.45}
 .dashboard-offer .button-link{white-space:nowrap}
 @media(max-width:760px){.commercial-offer{grid-template-columns:1fr;padding:22px;margin-bottom:55px}.offer-points{grid-template-columns:1fr}.dashboard-offer{align-items:flex-start;flex-direction:column}.dashboard-offer .button-link{width:100%}.offer-card{width:100%}}
+
+/* v0.13 free accounts and scan credits */
+.account-chip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:#aeb9c8;font-size:11px}
+.account-chip b{color:#cfff72;border:1px solid #45612a;border-radius:999px;padding:5px 8px}
+.account-chip button,.auth-switch{background:transparent;border:0;color:#a8c4e8;text-decoration:underline;cursor:pointer;padding:5px}
+.auth-card,.account-panel,.history-card{max-width:760px;margin:22px auto;padding:24px;border:1px solid #344456;border-radius:16px;background:linear-gradient(145deg,#111a25,#0c1118);box-shadow:0 16px 44px rgba(0,0,0,.16)}
+.auth-card h2,.account-panel h2,.history-card h3{margin:8px 0;font-size:25px;letter-spacing:-.025em}
+.auth-card>p,.account-panel p{color:#9eacbd;line-height:1.55;margin:0 0 18px}
+.auth-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.auth-form label{display:flex;flex-direction:column;gap:7px;color:#d8e1ec;font-size:12px;font-weight:800}
+.auth-form input{box-sizing:border-box;width:100%;padding:12px;border-radius:9px;border:1px solid #344052;background:#080d14;color:#f2f6fb;font:inherit}
+.auth-form button{grid-column:1/-1;min-height:44px}
+.auth-message{margin-top:12px;padding:10px 12px;border-radius:8px;border:1px solid #3a4b35;color:#c7e8a0;background:rgba(183,255,42,.04);font-size:12px;line-height:1.5}
+.auth-switch{margin-top:10px;font-size:12px}
+.account-panel{display:flex;justify-content:space-between;align-items:center;gap:18px}
+.account-panel h2{font-size:22px}
+.account-panel p{margin:0}
+.credit-meter{min-width:115px;border:1px solid #45612a;border-radius:12px;padding:12px;text-align:center;background:#0b120b}
+.credit-meter b{display:block;color:#cfff72;font-size:27px}
+.credit-meter span{font-size:9px;letter-spacing:.1em;color:#9eae91}
+.history-card h3{margin-bottom:12px}
+.history-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid #263243;font-size:12px}
+.history-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#dce5ef}
+.history-row b{color:#cfff72}
+.history-row time{color:#8391a3}
+.scan-credit-banner{display:flex;align-items:center;gap:12px;padding:10px 14px;margin-bottom:18px;border:1px solid #3c512c;border-radius:10px;background:rgba(183,255,42,.04);color:#aeb9a4;font-size:12px}
+.scan-credit-banner b{color:#cfff72;font-size:16px}
+.scan-credit-banner button{margin-left:auto}
+@media(max-width:650px){.history-row{grid-template-columns:minmax(0,1fr) auto}.history-row button{grid-column:1/-1;justify-self:start}.auth-form{grid-template-columns:1fr}.auth-form button{grid-column:auto}.account-panel{align-items:flex-start;flex-direction:column}.history-row{grid-template-columns:1fr auto}.history-row time{grid-column:1/-1}.account-chip{justify-content:flex-end}.scan-credit-banner{flex-wrap:wrap}}
