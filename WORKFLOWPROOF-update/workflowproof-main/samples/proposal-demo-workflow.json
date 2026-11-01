@@ -1,0 +1,49 @@
+{
+  "name": "Guided Proposal Demo",
+  "active": false,
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "parameters": { "path": "proposal-demo", "httpMethod": "POST" }
+    },
+    {
+      "id": "2",
+      "name": "Local API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [300, 0],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:11434/api/generate",
+        "options": { "timeout": 30000 }
+      }
+    },
+    {
+      "id": "3",
+      "name": "Notify Owner",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [600, 0],
+      "parameters": {
+        "sendTo": "owner@example.com",
+        "subject": "Workflow alert",
+        "message": "={{ JSON.stringify($json) }}"
+      },
+      "credentials": {
+        "gmailOAuth2": { "id": "placeholder", "name": "Gmail account" }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Local API", "type": "main", "index": 0 }]] },
+    "Local API": { "main": [[{ "node": "Notify Owner", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

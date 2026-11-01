@@ -1,0 +1,10 @@
+{
+  "name": "WorkflowProof Compare Demo",
+  "active": false,
+  "nodes": [
+    { "id": "1", "name": "Manual Trigger", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [0,0], "parameters": {} },
+    { "id": "2", "name": "Write API", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [300,0], "parameters": { "method": "GET", "url": "https://example.invalid/read" } }
+  ],
+  "connections": { "Manual Trigger": { "main": [[{ "node": "Write API", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }
+}

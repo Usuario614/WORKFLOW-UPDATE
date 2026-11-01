@@ -1,0 +1,4 @@
+WorkflowProof v0.12.0 (sales-readiness candidate)
+Automation preflight positioning, share-safe evidence, reproducible dependencies and release gates.
+59 deterministic audit rules.
+Do not promote to 1.0.0 until clean CI build, self-test, release fixture suite and buyer-validation gates pass.

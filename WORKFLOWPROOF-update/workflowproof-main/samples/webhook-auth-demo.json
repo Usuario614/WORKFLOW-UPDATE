@@ -1,0 +1,26 @@
+{
+  "name": "WorkflowProof Demo - Webhook Auth",
+  "active": false,
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Public Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "parameters": { "path": "workflowproof-auth-demo", "httpMethod": "POST" }
+    },
+    {
+      "id": "2",
+      "name": "Notify Team",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [300, 0],
+      "parameters": { "sendTo": "ops@example.com", "subject": "Webhook event", "message": "={{ JSON.stringify($json) }}" }
+    }
+  ],
+  "connections": {
+    "Public Webhook": { "main": [[{ "node": "Notify Team", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

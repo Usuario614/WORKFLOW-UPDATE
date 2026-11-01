@@ -1,0 +1,12 @@
+{
+  "name": "WorkflowProof",
+  "short_name": "WorkflowProof",
+  "description": "Local automation preflight for n8n workflow exports.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1220",
+  "theme_color": "#0d1220",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

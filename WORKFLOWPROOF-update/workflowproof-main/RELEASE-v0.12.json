@@ -1,0 +1,27 @@
+{
+  "product": "WorkflowProof",
+  "version": "0.12.0",
+  "releaseType": "sales-readiness-candidate",
+  "status": "candidate-not-final",
+  "engineRules": 59,
+  "distribution": {
+    "localFirst": true,
+    "installableWebApp": true,
+    "shareSafeEvidence": true,
+    "syntheticFirstRunDemo": true
+  },
+  "releaseGate": "docs/PUBLICATION_CHECKLIST.md",
+  "requiredCommands": ["npm ci", "npm run verify"],
+  "currentVerification": {
+    "cleanInstall": "passed from package-lock on 2026-09-21 with lifecycle scripts suppressed by this environment",
+    "typeCheck": "passed on 2026-09-21",
+    "engineSelfTest": "passed 13/13 on 2026-09-21",
+    "productionBuild": "not verified in this environment; Vite/esbuild child process was denied with spawn EPERM on 2026-09-21"
+  },
+  "commercialValidation": {
+    "pilotOffer": "docs/SALES_OPERATIONS.md",
+    "buyerIntake": "docs/BUYER_INTAKE.md",
+    "evidenceRequiredBeforePublic1_0": ["five paid assisted audits", "three repeated-need buyer interviews", "one approved anonymized case study", "tested support, refund and checkout routes"]
+  },
+  "claimBoundary": "Static-analysis evidence only; not a security certification, compliance attestation, legal advice or guarantee of production behavior."
+}

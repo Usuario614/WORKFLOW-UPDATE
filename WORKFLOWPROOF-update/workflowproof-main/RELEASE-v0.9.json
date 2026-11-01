@@ -1,0 +1,281 @@
+{
+  "product": "WorkflowProof",
+  "version": "0.9.0",
+  "releaseType": "comparison-evidence-and-release-proof",
+  "engineRules": 59,
+  "selfTestsExpected": 7,
+  "notableChanges": [
+    "Compare Version explains unchanged safety-cap scores.",
+    "Matching active risk acceptances are derived from the audited baseline and carried into candidate audits.",
+    "Comparison reports accepted-risk carry, resolution and carry-failure metrics.",
+    "Release Pack includes SHA-256 workflow fingerprint, decision summary, comparison and self-test evidence.",
+    "vite-env.d.ts included so CSS side-effect imports pass TypeScript checks after npm install."
+  ],
+  "files": [
+    {
+      "path": ".gitignore",
+      "sha256": "f2b82b036359d39f4cdfc16e38e6829bc646381c4e97d01048b2c5b3c4c9eec9",
+      "bytes": 46
+    },
+    {
+      "path": "README.md",
+      "sha256": "dee247e12d8bd75f054803ac678800d2cc4155f04321f83100ad1b034127beff",
+      "bytes": 2722
+    },
+    {
+      "path": "START_HERE_WINDOWS.bat",
+      "sha256": "7fbf7b9ffea5b3c9e393689fc03f2e67d4419a3f4e3df7f82b7c34c83fec85fe",
+      "bytes": 345
+    },
+    {
+      "path": "START_HERE_WINDOWS.ps1",
+      "sha256": "b40309789603da8abff762f0b69ee60c3073109603219891cee42367e6869883",
+      "bytes": 243
+    },
+    {
+      "path": "UPGRADE-v0.9.txt",
+      "sha256": "c144f48b60622f7dc7b61b9a5b532a68a2100927e6fe9b9c5579f4d423b93f0b",
+      "bytes": 412
+    },
+    {
+      "path": "VERSION-v0.9.txt",
+      "sha256": "61bcfaea20022ca99189a3bdee51d1ee21944a42933c0692a516550e14948c49",
+      "bytes": 137
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "sha256": "201e117fe47a12290c4edae4cc2218ef350e191304e21c51371402bdd033b3d1",
+      "bytes": 2874
+    },
+    {
+      "path": "docs/CHANGELOG-v0.9.md",
+      "sha256": "39a6c7edf9ef3c1d923347b8cb303c89dea5ddb51a466a09d0f9a0a3b5b97b31",
+      "bytes": 1118
+    },
+    {
+      "path": "docs/QA-v0.8.md",
+      "sha256": "6aafc928119071da733907ffed44683f7f1b12d1b54a58c8c0ca2d2e8b182fcc",
+      "bytes": 1189
+    },
+    {
+      "path": "docs/QA-v0.9.md",
+      "sha256": "60d000b012059d6da576fb36515650a71ea5b0010d4777d10d7d952d66d70dd9",
+      "bytes": 951
+    },
+    {
+      "path": "docs/ROADMAP.md",
+      "sha256": "b0178816a38bdf69f0314f528681473e472b615e65f16903168b91e5e9d4261e",
+      "bytes": 1942
+    },
+    {
+      "path": "docs/RULE_CATALOG.md",
+      "sha256": "0f861f7cca4c1aed8aa7bb8a942d113d10d70166c706062e210ccbf538eaa958",
+      "bytes": 2066
+    },
+    {
+      "path": "docs/SCORING-v0.8.md",
+      "sha256": "580f7e81fb1c1f1e70ed6cd2e692e96c73a0c5b0c0cfb6b078475f207a08aa17",
+      "bytes": 1359
+    },
+    {
+      "path": "docs/SCORING-v0.9.md",
+      "sha256": "6c1bfffd0958a185abdd4775dd2c79e8b77a06e48905fc733df99d580304a1ab",
+      "bytes": 675
+    },
+    {
+      "path": "docs/STABILITY-v0.8.md",
+      "sha256": "49dd737d3c1dec6572fcd3569185111b6e7887bad736af6fd414205930915d0b",
+      "bytes": 1065
+    },
+    {
+      "path": "docs/STABILITY-v0.9.md",
+      "sha256": "7dbd24a33ab27e2f40e6739ace4b92b6c8e58f48a7d1e4a5090ea2f23858257a",
+      "bytes": 587
+    },
+    {
+      "path": "index.html",
+      "sha256": "d8ab4871dc1bcd010a7107f7190051e33f21ff4ddaabca0bf543bbab85005970",
+      "bytes": 454
+    },
+    {
+      "path": "package.json",
+      "sha256": "5e8b450ee6cb8b23a830288c1d89397e54ee96fadfac447b8af90b6861265b0a",
+      "bytes": 488
+    },
+    {
+      "path": "samples/compare-after.json",
+      "sha256": "0906c0f6d574d7e3d18672cd5946d8575a05de66564251f66bcf49113d31c78c",
+      "bytes": 655
+    },
+    {
+      "path": "samples/compare-before.json",
+      "sha256": "34dcc25ea6e450a5446c1c1885c3f490df154c82f8ada594e25c26c22de03ca9",
+      "bytes": 560
+    },
+    {
+      "path": "samples/example-report.json",
+      "sha256": "5ae77613104b262f0cadc3b9fb0e78ae1037b16bee4fcf615cc6de57a90b3867",
+      "bytes": 12188
+    },
+    {
+      "path": "samples/example-test-plan.md",
+      "sha256": "541cba2be9b605c1343f2874d1b7986a3d35a0ec8e9b16899a6ef2b2da62b6e9",
+      "bytes": 3612
+    },
+    {
+      "path": "samples/proposal-demo-workflow.json",
+      "sha256": "d3028cd8b063279c262691b063eb200810b468578c0277c3dcf06c9b501b2248",
+      "bytes": 1319
+    },
+    {
+      "path": "samples/risky-lead-workflow.json",
+      "sha256": "f33af452f5e7878020ddaefdc1d955aa1b7e0491f9b8d15b1a305aea73306c15",
+      "bytes": 1434
+    },
+    {
+      "path": "samples/security-edge-cases.json",
+      "sha256": "44e674db38b291d23ba3dc194b6770909c3d55e95d536cee119799b6d790952a",
+      "bytes": 1059
+    },
+    {
+      "path": "samples/webhook-auth-demo.json",
+      "sha256": "b00999979eab0af08f1dda97983fe612f40e9b84a0631b483592456c93bea595",
+      "bytes": 748
+    },
+    {
+      "path": "src/App.tsx",
+      "sha256": "73bf74ed5ba862dc9790d006ad0a309627e6ac5b1009630e684a1d224b00caa3",
+      "bytes": 24051
+    },
+    {
+      "path": "src/components/Breakdown.tsx",
+      "sha256": "852c4fc1858ac4e7a51d3b5dd426cdb41e91f073b97bc61cc6e9a2794049bf71",
+      "bytes": 916
+    },
+    {
+      "path": "src/components/ComparisonPanel.tsx",
+      "sha256": "219bec4f08c1f6eedbdbe32be2c78dffbd607ed2d1e173b28e3b65aa9fa132ae",
+      "bytes": 3643
+    },
+    {
+      "path": "src/components/DropZone.tsx",
+      "sha256": "2a6f5c1baba08aa6d9a17b95c9c988db172eb82c2d99e005492a03a42411c1cb",
+      "bytes": 1290
+    },
+    {
+      "path": "src/components/IssueList.tsx",
+      "sha256": "a6eb88595d9640e6f83dadda6fcd22572d47c6a124484edc6517965be58528b9",
+      "bytes": 4907
+    },
+    {
+      "path": "src/components/ProposalWorkbench.tsx",
+      "sha256": "5d53e1d39599c5564786225f66ef4c88fad5d45d90dec4fd6dd46d97e8312c13",
+      "bytes": 4027
+    },
+    {
+      "path": "src/components/RiskAcceptanceWorkbench.tsx",
+      "sha256": "773caec89cc4d543c7d5a8ba95fca7db30f5fd4c846ab5ae85e0beef602b58bb",
+      "bytes": 2428
+    },
+    {
+      "path": "src/components/ScoreCard.tsx",
+      "sha256": "4457a91563a18f2ef41137b8b44d544c79dc92a8cb0f68b88ea79e367df2f123",
+      "bytes": 2505
+    },
+    {
+      "path": "src/components/SelfTestPanel.tsx",
+      "sha256": "f96fc3f175770134c2907ea9cca2bbb01a44ef8c2bbf9c764c4bf2555753725e",
+      "bytes": 722
+    },
+    {
+      "path": "src/components/TestPlan.tsx",
+      "sha256": "95717612be4066eed7c2f02367e5661e2aa21a28e8b2a705c720e2ccd8f50b50",
+      "bytes": 1102
+    },
+    {
+      "path": "src/engine/audit.ts",
+      "sha256": "0f950995d90a47c3e00721bcef4880048be860ed1297cd3ba9759b7f28d10b7c",
+      "bytes": 7245
+    },
+    {
+      "path": "src/engine/compare.ts",
+      "sha256": "c8e6585bb3998fdd11ed0d546ac7dfe09f7bd2c29481cdb9a26ef2df31af05cf",
+      "bytes": 4024
+    },
+    {
+      "path": "src/engine/fixes.ts",
+      "sha256": "4e8be5c250e60be54ee246f28344aeab9d0aa5a6d84d582bde2d6cbc12f8bed5",
+      "bytes": 2521
+    },
+    {
+      "path": "src/engine/graph.ts",
+      "sha256": "74c1499b29a940f8ba76f8a080dc0ff7818b54e1d1a7d4f4523cc0238cdbe68b",
+      "bytes": 2138
+    },
+    {
+      "path": "src/engine/helpers.ts",
+      "sha256": "2e643521898f314913e0bcb80c939eb608de54796696f9b93624929183a7b533",
+      "bytes": 9666
+    },
+    {
+      "path": "src/engine/proposals.ts",
+      "sha256": "83bc2829d1d5bb6651ee77c29801f6b29281add46a3dd898cb0b996b7e2d4469",
+      "bytes": 15636
+    },
+    {
+      "path": "src/engine/repair.ts",
+      "sha256": "829b0020bd8b8b15989d6452fa94a36a7e5df62efe25e5e471018548be346116",
+      "bytes": 14212
+    },
+    {
+      "path": "src/engine/rules.ts",
+      "sha256": "19523e2018da4f587a6c9b03f84f2d6a433a28ff5ad449c99920dee802c30ca2",
+      "bytes": 52972
+    },
+    {
+      "path": "src/engine/selftest.ts",
+      "sha256": "49e9e1e6d84fc534cb00cc2b5ec96b890de4e6d717c2168699d981b71c176dac",
+      "bytes": 5171
+    },
+    {
+      "path": "src/engine/tests.ts",
+      "sha256": "c8818f7808db2f4f25844f0056f1c1e1e21fb7c6fc775ed61c7a93600e0ad3ab",
+      "bytes": 4238
+    },
+    {
+      "path": "src/main.tsx",
+      "sha256": "7fc3b8c9d229624279e9ba4cad3ddca11b4c474f00f22752fa47781b1db4924f",
+      "bytes": 229
+    },
+    {
+      "path": "src/styles.css",
+      "sha256": "b284d235790609a0b32707fec04734efc241e1f0f7b3cba69bb4c072c394417d",
+      "bytes": 21930
+    },
+    {
+      "path": "src/types/workflow.ts",
+      "sha256": "cda596cb22db7c2748498a89194ed6e38867bedbdc17b35c46b6d8c576e99f08",
+      "bytes": 5335
+    },
+    {
+      "path": "src/utils/download.ts",
+      "sha256": "4614817811fc82bd3cb8220cf118cc1f2295e5b3f12391a0df381fc4374841e3",
+      "bytes": 4139
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+      "bytes": 38
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "3062d4b5bad0eeb7cd83411c255fe17a5bc544378289ee43c922f3a95046d2bb",
+      "bytes": 485
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "14501439875c563028a6d28102ab04a36105e6f013b0803a9b5f62690bf45098",
+      "bytes": 162
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "product": "WorkflowProof",
+  "version": "0.10.0",
+  "releaseType": "commercial-readiness-candidate",
+  "status": "candidate-not-final",
+  "engineRules": 59,
+  "productPromise": "Local automation preflight for n8n workflow exports.",
+  "notableChanges": [
+    "Share-safe Release Pack uses contextual and content-pattern redaction.",
+    "Release pack records the number of automated redactions and warns that review remains required.",
+    "Dependencies are fixed and package-lock.json is committed for reproducible installs.",
+    "A GitHub Actions workflow requires clean install, type check and production build.",
+    "Product and launch documentation define a free local wedge and an assisted-audit validation path."
+  ],
+  "promotionCriteria": [
+    "npm ci succeeds in a clean environment",
+    "npm run check succeeds",
+    "npm run build succeeds",
+    "engine self-test and regression fixture suite succeed",
+    "share-safe release pack is manually reviewed against sensitive fixtures",
+    "at least five paid assisted-audit deliveries validate buyer demand"
+  ],
+  "verification": {
+    "currentEnvironment": "not-final",
+    "reason": "This environment blocked the clean dependency download required to run the final build after dependency pinning."
+  }
+}

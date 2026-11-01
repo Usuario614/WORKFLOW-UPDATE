@@ -1,0 +1,30 @@
+{
+  "product": "WorkflowProof",
+  "version": "0.11.0",
+  "releaseType": "publication-readiness-candidate",
+  "status": "candidate-not-final",
+  "engineRules": 59,
+  "distribution": {
+    "localFirst": true,
+    "installableWebApp": true,
+    "shareSafeEvidence": true
+  },
+  "releaseGate": "docs/PUBLICATION_CHECKLIST.md",
+  "requiredCommands": [
+    "npm ci",
+    "npm run verify"
+  ],
+  "currentVerification": {
+    "typeCheck": "passed",
+    "engineSelfTest": "passed 12/12",
+    "productionBuild": "not verified in this environment; Vite/esbuild child process was denied with spawn EPERM"
+  },
+  "promotionCriteria": [
+    "CI verifies the exact release commit",
+    "Share-safe exports pass sensitive fixture review",
+    "Privacy, license and security contacts are finalized for the seller",
+    "Five paid assisted-audit validations are documented",
+    "At least one anonymized outcome case study is approved"
+  ],
+  "claimBoundary": "Static analysis evidence only; not security certification, legal advice, compliance attestation or guarantee of production behavior."
+}

@@ -1,0 +1,44 @@
+{
+  "name": "Risky Lead Capture Demo",
+  "active": false,
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Public Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "parameters": { "path": "lead", "httpMethod": "POST" }
+    },
+    {
+      "id": "2",
+      "name": "Ask AI to qualify lead",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [260, 0],
+      "parameters": { "prompt": "Qualify {{$json.email}} {{$json.name}} {{$json.message}}" }
+    },
+    {
+      "id": "3",
+      "name": "Create HubSpot Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [520, 0],
+      "parameters": { "url": "https://api.hubapi.com/crm/v3/objects/contacts", "method": "POST" }
+    },
+    {
+      "id": "4",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [780, 0],
+      "parameters": { "to": "ops@example.com", "message": "Welcome {{$json.email}}" }
+    }
+  ],
+  "connections": {
+    "Public Lead Webhook": { "main": [[{ "node": "Ask AI to qualify lead", "type": "main", "index": 0 }]] },
+    "Ask AI to qualify lead": { "main": [[{ "node": "Create HubSpot Contact", "type": "main", "index": 0 }]] },
+    "Create HubSpot Contact": { "main": [[{ "node": "Send Welcome Email", "type": "main", "index": 0 }]] }
+  },
+  "settings": {}
+}

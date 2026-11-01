@@ -1,0 +1,11 @@
+Recommended installation: use this full v0.9 project in a NEW folder.
+
+1. Extract workflowproof-mvp-v0.9-full.zip.
+2. Open the inner folder containing package.json in VS Code.
+3. Run: npm install
+4. Run: npm run check
+5. Run: npm run dev
+6. Open the Vite localhost URL.
+7. Run Engine Self-Test. Expected: 7/7.
+
+Do not merge this project into old v0.1-v0.8 folders unless you intentionally maintain those copies.

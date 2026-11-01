@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="WorkflowProof">
+  <rect width="256" height="256" rx="56" fill="#101828"/>
+  <path d="M48 66h36l17 86 25-55h20l25 55 17-86h20l-27 124h-32l-23-52-23 52H75z" fill="#8ee6c8"/>
+  <path d="M179 49l8 17 18 3-13 13 3 18-16-9-16 9 3-18-13-13 18-3z" fill="#fdb022"/>
+</svg>

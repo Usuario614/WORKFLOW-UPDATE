@@ -1,0 +1,14 @@
+{
+  "name": "WorkflowProof Demo - Security Edge Cases",
+  "active": false,
+  "nodes": [
+    { "id": "1", "name": "Manual Trigger", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [0,0], "parameters": {} },
+    { "id": "2", "name": "Plaintext Remote API", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [280,0], "parameters": { "method": "GET", "url": "http://example.invalid/api" }, "retryOnFail": true, "maxTries": 3, "waitBetweenTries": 2000 },
+    { "id": "3", "name": "Query Secret Demo", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [560,0], "parameters": { "method": "GET", "url": "https://example.invalid/api?token=FAKE_DEMO_TOKEN_123456789" }, "retryOnFail": true, "maxTries": 3, "waitBetweenTries": 2000 }
+  ],
+  "connections": {
+    "Manual Trigger": { "main": [[{ "node": "Plaintext Remote API", "type": "main", "index": 0 }]] },
+    "Plaintext Remote API": { "main": [[{ "node": "Query Secret Demo", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
