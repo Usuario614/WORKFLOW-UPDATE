@@ -3,7 +3,7 @@
 Local-first automation preflight and hardening workbench for exported n8n workflow JSON. It helps builders surface static risk evidence before a workflow is deployed, handed off, or shared.
 
 ## Core capabilities
-- 59 deterministic audit rules across Reliability, Recovery, Data Safety, Security, Maintainability and AI Safety.
+- 60 deterministic audit rules across Reliability, Recovery, Data Safety, Security, Maintainability and AI Safety.
 - Production gates that prevent High/Critical findings from being hidden behind a high weighted score.
 - Safe deterministic auto-fixes with re-audit proof.
 - Guided fix proposals with preview, approval and re-audit.
@@ -91,3 +91,9 @@ For a scoped n8n reliability review or a WorkflowProof pilot, contact [nuvekoia@
 Optional Supabase-backed accounts provide two lifetime free scans per user, an account credit counter and downloadable report history. The workflow JSON remains in the browser; the generated audit report is stored in the user's Supabase account. Configure the project using [SUPABASE_SETUP.md](SUPABASE_SETUP.md) and run [supabase/schema.sql](supabase/schema.sql). Never expose a Supabase service-role key in browser environment variables.
 
 Premium checkout is not connected yet; exhausted accounts see a clear free-credit limit rather than a fake payment flow.
+
+## Private agency audit and CI
+
+After installing dependencies, run `node scripts/audit-workflow.cjs workflow.json > report.json` from the project directory. This checks one exported workflow locally using the same rules as the web app. It requires no account, network connection or n8n credentials. Exit 0 means no open High or Critical findings, 1 means review is required, and 2 means the input or analysis failed. On exit 2, the diagnostic goes to stderr and no report is issued. Reports can contain sensitive names and evidence. Keep them out of public CI logs and artifacts.
+
+The graph check covers missing sources, missing destinations and duplicate node names, including typed connections. A clean static report still requires a test execution with representative data before release.

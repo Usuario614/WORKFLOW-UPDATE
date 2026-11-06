@@ -30,7 +30,7 @@ export function DropZone({ onFile, error }: Props) {
         <div className="drop-icon">⇩</div>
         <h2>Drop your n8n workflow.json</h2>
         <p>or click to choose a file</p>
-        <div className="privacy-pill">Workflow JSON stays on device · Report saved to your account</div>
+        <div className="privacy-pill">The JSON is analyzed on this device. Scanning saves the report, findings, score, workflow name and filename to your Supabase-backed account. Use a sanitized export.</div>
       </div>
       {error && <div className="error-banner">{error}</div>}
     </div>

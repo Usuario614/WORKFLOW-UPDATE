@@ -219,13 +219,17 @@ export default function App() {
     }
   }
 
-  async function loadDemo() {
+  async function loadDemo(brokenRoute = false) {
     setError(''); setProof(null); setShowTests(false); setProposalSession(null); setAcceptanceSession(null); setComparison(null); setAcceptances([]); setWorkflowKey('');
     const raw = structuredClone(DEMO_WORKFLOW);
+    if (brokenRoute) {
+      raw.name = 'Broken route demo';
+      raw.connections['Manual trigger'].main[0][0].node = 'Removed catalog node';
+    }
     const key = await sha256Json(raw);
     setWorkflow(raw);
     setReport(auditWorkflow(raw));
-    setFileName('workflowproof-safe-demo.json');
+    setFileName(brokenRoute ? 'broken-route-demo.json' : 'workflowproof-safe-demo.json');
     setWorkflowKey(key);
   }
 
@@ -452,10 +456,11 @@ export default function App() {
               <div className="credit-meter"><b>{credits ?? '…'} / 2</b><span>FREE SCANS LEFT</span></div>
             </section>
           )}
-          {user && <DropZone onFile={analyze} error={error} />}
+          {user && credits === 0 && <section className="auth-card"><h2>Your two free scans are complete</h2><p>Your saved reports are available below. For a human review of one sanitized workflow, <a href={AUDIT_MAILTO}>request the USD 49 assisted audit</a>.</p></section>}
+          {user && credits !== 0 && <DropZone onFile={analyze} error={error} />}
           {!user && supabase && error && <div className="error-banner">{error}</div>}
           {user && history.length > 0 && <section className="history-card"><div className="eyebrow">YOUR RECENT REPORTS</div><h3>Scan history</h3>{history.map((item) => <div className="history-row" key={item.id}><span>{item.workflow_name}</span><b>Score {item.score}</b><time>{new Date(item.created_at).toLocaleDateString()}</time><button onClick={() => downloadSavedReport(item.id, item.workflow_name)}>Download report</button></div>)}</section>}
-          <div className="landing-tools"><button className="primary" onClick={loadDemo}>Run a safe demo</button><button onClick={() => setSelfTest(runSelfTest())}>Run engine self-test</button><span>The demo is synthetic and never contacts a live system. Static analysis is evidence for review, never a security certification.</span></div>
+          <div className="landing-tools"><button className="primary" onClick={() => loadDemo()}>Run a safe demo</button><button onClick={() => loadDemo(true)}>Test a broken connection</button><button onClick={() => setSelfTest(runSelfTest())}>Run engine self-test</button><span>The demo is synthetic and never contacts a live system. Static analysis is evidence for review, never a security certification.</span></div>
           {selfTest && <SelfTestPanel result={selfTest} onClose={() => setSelfTest(null)} />}
           <div className="trust-row"><span>✓ 2 free scans</span><span>✓ Workflow stays on your device</span><span>✓ No n8n API key</span><span>✓ Analysis runs in your browser</span></div>
 
@@ -483,7 +488,7 @@ export default function App() {
           </section>
 
           <section className="feature-strip">
-            <div><b>PRE-FLIGHT</b><span>59 deterministic rules inspect an n8n export before a deployment or handoff.</span></div>
+            <div><b>PRE-FLIGHT</b><span>60 deterministic rules inspect an n8n export before a deployment or handoff.</span></div>
             <div><b>REMEDIATE</b><span>Only clearly safe changes are automatic. Every guided change is previewed for approval.</span></div>
             <div><b>GOVERN</b><span>Accepted risks stay visible, retain technical penalties and require an owner and rationale.</span></div>
             <div><b>PROVE</b><span>Compare versions and attach a share-safe evidence pack to a client or release handoff.</span></div>

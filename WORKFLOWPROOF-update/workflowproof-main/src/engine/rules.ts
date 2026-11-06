@@ -56,6 +56,31 @@ const containsAny = (text: string, values: string[]) => values.some((v) => text.
 const params = (node: N8nNode) => stringify(node.parameters || {}).toLowerCase();
 
 export const RULES: AuditRule[] = [
+  {
+    id: 'GRAPH_INTEGRITY', title: 'Workflow graph has an unresolved reference',
+    category: 'Reliability', severity: 'critical', scorePenalty: 12,
+    evaluate(ctx) {
+      const names = new Set<string>();
+      const problems = new Set<string>();
+      for (const node of ctx.nodes) {
+        if (names.has(node.name)) problems.add(`Duplicate node name: ${JSON.stringify(node.name)}`);
+        names.add(node.name);
+      }
+      for (const [source, ports] of Object.entries(ctx.workflow.connections)) {
+        if (!names.has(source)) problems.add(`Missing source node: ${JSON.stringify(source)}`);
+        for (const [port, outputs] of Object.entries(ports)) {
+          outputs.forEach((targets, index) => {
+            for (const target of targets || []) {
+              if (!names.has(target.node)) problems.add(`${JSON.stringify(source)} / ${port}[${index}] points to missing node ${JSON.stringify(target.node)}`);
+            }
+          });
+        }
+      }
+      return [...problems].map(problem => workflowIssue(this, problem,
+        'n8n resolves connections by node name. This route cannot be resolved unambiguously.',
+        'Open the workflow in n8n, repair the named connection or duplicate, then export and scan again.'));
+    },
+  },
   perNodeRule(
     { id: 'HTTP_NO_RETRY', title: 'External request has no retry strategy', category: 'Reliability', severity: 'high', scorePenalty: 6 },
     (n) => isHttp(n) && !hasRetry(n),

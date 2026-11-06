@@ -100,8 +100,8 @@ export function runSelfTest(): SelfTestResult {
 
   cases.push({
     name: 'Rule catalog integrity',
-    passed: RULE_COUNT === 59 && new Set(RULES.map((rule) => rule.id)).size === RULE_COUNT && RULES.every((rule) => rule.title && rule.category && rule.scorePenalty >= 0),
-    details: 'All 59 shipped rules have unique identifiers and complete scoring metadata.',
+    passed: RULE_COUNT === 60 && new Set(RULES.map((rule) => rule.id)).size === RULE_COUNT && RULES.every((rule) => rule.title && rule.category && rule.scorePenalty >= 0),
+    details: 'All 60 shipped rules have unique identifiers and complete scoring metadata.',
   });
 
   let ruleExecutionFailure = '';

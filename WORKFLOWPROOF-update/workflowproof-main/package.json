@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "check": "tsc --noEmit",
-    "selftest": "node scripts/run-engine-selftest.cjs",
+    "selftest": "node scripts/run-engine-selftest.cjs && node scripts/test-cli.cjs",
+    "audit:workflow": "node scripts/audit-workflow.cjs",
     "verify": "npm run check && npm run selftest && npm run build"
   },
   "dependencies": {

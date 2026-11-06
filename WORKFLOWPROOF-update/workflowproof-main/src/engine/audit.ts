@@ -99,15 +99,33 @@ export function validateWorkflowShape(raw: unknown): asserts raw is N8nWorkflow 
   if (!raw || typeof raw !== 'object') throw new Error('The file does not contain a JSON object.');
   const obj = raw as Record<string, unknown>;
   if (!Array.isArray(obj.nodes)) throw new Error('This does not look like an n8n workflow: missing nodes array.');
-  if (!obj.connections || typeof obj.connections !== 'object') throw new Error('This does not look like an n8n workflow: missing connections object.');
+  if (!obj.connections || typeof obj.connections !== 'object' || Array.isArray(obj.connections)) throw new Error('This does not look like an n8n workflow: missing connections object.');
   for (const node of obj.nodes as unknown[]) {
     if (!node || typeof node !== 'object' || typeof (node as Record<string, unknown>).name !== 'string' || typeof (node as Record<string, unknown>).type !== 'string') {
       throw new Error('At least one node is malformed or missing its name/type.');
     }
   }
+  for (const [source, outputs] of Object.entries(obj.connections)) {
+    if (!outputs || typeof outputs !== 'object' || Array.isArray(outputs)) throw new Error(`Invalid connection map at ${source}.`);
+    for (const [port, groups] of Object.entries(outputs)) {
+      if (!Array.isArray(groups)) throw new Error(`Invalid output list at ${source}.${port}.`);
+      for (const [index, group] of groups.entries()) {
+        if (group === null) continue; // An unconnected output can occupy a branch slot.
+        if (!Array.isArray(group)) throw new Error(`Invalid branch at ${source}.${port}[${index}].`);
+        for (const target of group) {
+          if (!target || typeof target.node !== 'string' || !target.node.trim() ||
+              typeof target.type !== 'string' || !target.type.trim() ||
+              !Number.isSafeInteger(target.index) || target.index < 0) {
+            throw new Error(`Invalid target at ${source}.${port}[${index}]. Re-export the workflow from n8n.`);
+          }
+        }
+      }
+    }
+  }
 }
 
 function buildReport(workflow: N8nWorkflow, acceptances: RiskAcceptance[] = []): AuditReport {
+  validateWorkflowShape(workflow);
   const graph = buildGraph(workflow);
   const ctx: RuleContext = {
     workflow,
@@ -120,7 +138,7 @@ function buildReport(workflow: N8nWorkflow, acceptances: RiskAcceptance[] = []):
     try { return rule.evaluate(ctx); }
     catch (error) {
       console.warn(`Rule ${rule.id} failed`, error);
-      return [];
+      throw new Error(`Audit incomplete: rule ${rule.id} could not evaluate this workflow. No readiness score was issued.`);
     }
   }).map(attachRepairGuidance);
 
