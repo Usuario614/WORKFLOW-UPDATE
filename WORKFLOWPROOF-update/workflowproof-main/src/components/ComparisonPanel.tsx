@@ -49,6 +49,7 @@ export function ComparisonPanel({ result, onClose, onExport }: { result: Compari
       <div className="comparison-grid comparison-grid-v09">
         <div><span>Resolved findings</span><b>{result.resolvedIssues.length}</b>{result.resolvedIssues.slice(0,8).map((i) => <small key={i.id}>✓ {i.severity.toUpperCase()} · {i.title}{i.nodeName ? ` · ${i.nodeName}` : ''}{i.acceptance ? ' · accepted risk retired' : ''}</small>)}</div>
         <div><span>New findings</span><b>{result.newIssues.length}</b>{result.newIssues.slice(0,8).map((i) => <small key={i.id}>+ {i.severity.toUpperCase()} · {i.title}{i.nodeName ? ` · ${i.nodeName}` : ''}</small>)}</div>
+        <div><span>Changed, still present</span><b>{result.changedIssues.length}</b>{result.changedIssues.slice(0,8).map((i) => <small key={i.id}>{i.severity.toUpperCase()} · {i.title}{i.nodeName ? ` · ${i.nodeName}` : ''}</small>)}<small>Same rule and node, with changed evidence or configuration. Previous risk acceptances require review.</small></div>
         <div><span>Unchanged</span><b>{result.unchangedIssues.length}</b><small>Findings present in both versions.</small><small>{result.carriedAcceptances} active acceptance(s) carried into the candidate where the same finding still exists.</small></div>
       </div>
     </section>

@@ -2,7 +2,7 @@ import type { N8nWorkflow, RiskAcceptance, SelfTestResult } from '../types/workf
 import { auditWorkflow } from './audit';
 import { applySafeFixes } from './fixes';
 import { compareReports } from './compare';
-import { buildGraph } from './graph';
+import { ancestorsOf, buildGraph, reachableFrom } from './graph';
 import { RULES, RULE_COUNT } from './rules';
 import { sanitizeForSharingWithSummary } from './sanitize';
 import { createGuidedProposal, materializeGuidedProposal } from './proposals';
@@ -164,5 +164,34 @@ export function runSelfTest(): SelfTestResult {
     details: 'Guided Fix refuses to configure an Error Workflow that points back to the audited workflow.',
   });
 
+  const stillPresent = changedReport.issues.find((issue) => issue.ruleId === nodeBoundAcceptance?.ruleId);
+  cases.push({
+    name: 'Changed findings are not resolved',
+    passed: Boolean(stillPresent) && changedComparison.changedIssues.some((issue) => issue.id === stillPresent?.id)
+      && !changedComparison.resolvedIssues.some((issue) => issue.ruleId === nodeBoundAcceptance?.ruleId)
+      && !changedComparison.newIssues.some((issue) => issue.ruleId === nodeBoundAcceptance?.ruleId),
+    details: 'A changed fingerprint at the same rule and node remains open; its acceptance still expires.',
+  });
+  const correctedWebhook = structuredClone(publicWebhook);
+  correctedWebhook.nodes[0].parameters = { ...correctedWebhook.nodes[0].parameters, authentication: 'headerAuth' };
+  const correctedComparison = compareReports(webhook, auditWorkflow(correctedWebhook));
+  cases.push({
+    name: 'Removed findings are resolved',
+    passed: correctedComparison.resolvedIssues.some((issue) => issue.ruleId === 'WEBHOOK_NO_AUTH_HINT')
+      && !correctedComparison.changedIssues.some((issue) => issue.ruleId === 'WEBHOOK_NO_AUTH_HINT'),
+    details: 'An actual configuration fix that removes a rule finding is counted as resolved.',
+  });
+  const cyclic: N8nWorkflow = {
+    nodes: ['A','B','C','D'].map((name) => ({ name, type: 'n8n-nodes-base.noOp' })),
+    connections: { A: { main: [[{ node: 'B', type: 'main', index: 0 }, { node: 'C', type: 'main', index: 0 }]] }, B: { main: [[{ node: 'D', type: 'main', index: 0 }]] }, C: { main: [[{ node: 'D', type: 'main', index: 0 }]] }, D: { main: [[{ node: 'A', type: 'main', index: 0 }]] } },
+  };
+  const cyclicGraph = buildGraph(cyclic);
+  cases.push({
+    name: 'Graph traversal handles cycles and shared descendants',
+    passed: [...reachableFrom(cyclicGraph, 'A')].join(',') === 'A,B,C,D'
+      && [...ancestorsOf(cyclicGraph, 'D')].join(',') === 'D,B,C,A'
+      && [...reachableFrom(cyclicGraph, 'missing')].join(',') === 'missing',
+    details: 'Reachability and ancestry visit each node once while preserving breadth-first order.',
+  });
   return { passed: cases.every((item) => item.passed), generatedAt: new Date().toISOString(), cases };
 }

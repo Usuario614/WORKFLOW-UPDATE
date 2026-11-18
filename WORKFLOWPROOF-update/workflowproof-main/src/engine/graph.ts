@@ -39,28 +39,24 @@ export function countConnections(workflow: N8nWorkflow): number {
 }
 
 export function reachableFrom(graph: Map<string, GraphNode>, start: string): Set<string> {
-  const seen = new Set<string>();
+  const seen = new Set<string>([start]);
   const queue = [start];
-  while (queue.length) {
-    const current = queue.shift()!;
-    if (seen.has(current)) continue;
-    seen.add(current);
+  for (let head = 0; head < queue.length; head++) {
+    const current = queue[head];
     for (const next of graph.get(current)?.outgoing || []) {
-      if (!seen.has(next)) queue.push(next);
+      if (!seen.has(next)) { seen.add(next); queue.push(next); }
     }
   }
   return seen;
 }
 
 export function ancestorsOf(graph: Map<string, GraphNode>, start: string): Set<string> {
-  const seen = new Set<string>();
+  const seen = new Set<string>([start]);
   const queue = [start];
-  while (queue.length) {
-    const current = queue.shift()!;
-    if (seen.has(current)) continue;
-    seen.add(current);
+  for (let head = 0; head < queue.length; head++) {
+    const current = queue[head];
     for (const prev of graph.get(current)?.incoming || []) {
-      if (!seen.has(prev)) queue.push(prev);
+      if (!seen.has(prev)) { seen.add(prev); queue.push(prev); }
     }
   }
   return seen;

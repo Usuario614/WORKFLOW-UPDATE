@@ -1,9 +1,8 @@
 import type { AuditReport, ComparisonResult, RuleIssue } from '../types/workflow';
 
 function key(issue: RuleIssue) {
-  // `id` contains the deterministic finding fingerprint. Comparisons must not
-  // label a changed configuration as unchanged simply because a node kept its
-  // display name.
+  // Fingerprints govern unchanged evidence and risk-acceptance carry. Rule and
+  // location separately distinguish changed findings from genuinely resolved ones.
   return issue.id;
 }
 
@@ -38,10 +37,12 @@ function gateExplanation(baseline: AuditReport, candidate: AuditReport, resolved
 export function compareReports(baseline: AuditReport, candidate: AuditReport): ComparisonResult {
   const base = new Map(baseline.issues.map((issue) => [key(issue), issue]));
   const next = new Map(candidate.issues.map((issue) => [key(issue), issue]));
+  const baseLocations = new Set(baseline.issues.map(locationKey));
   const nextLocations = new Set(candidate.issues.map(locationKey));
-  const newIssues = candidate.issues.filter((issue) => !base.has(key(issue)));
-  const resolvedIssues = baseline.issues.filter((issue) => !next.has(key(issue)));
+  const newIssues = candidate.issues.filter((issue) => !baseLocations.has(locationKey(issue)));
+  const resolvedIssues = baseline.issues.filter((issue) => !nextLocations.has(locationKey(issue)));
   const unchangedIssues = candidate.issues.filter((issue) => base.has(key(issue)));
+  const changedIssues = candidate.issues.filter((issue) => baseLocations.has(locationKey(issue)) && !base.has(key(issue)));
 
   const baselineAcceptedKeys = new Set(baseline.issues.filter((i) => i.acceptance).map(key));
   const candidateAcceptedKeys = new Set(candidate.issues.filter((i) => i.acceptance).map(key));
@@ -58,7 +59,7 @@ export function compareReports(baseline: AuditReport, candidate: AuditReport): C
   if (newSerious > 0 && resolvedSerious > 0) changeSignal = 'mixed';
   else if (newSerious > 0 || candidate.score < baseline.score) changeSignal = 'regressed';
   else if (resolvedSerious > 0 || candidate.score > baseline.score) changeSignal = 'improved';
-  else if (newIssues.length || resolvedIssues.length) changeSignal = 'mixed';
+  else if (newIssues.length || resolvedIssues.length || changedIssues.length) changeSignal = 'mixed';
 
   return {
     baselineName: baseline.workflowName,
@@ -70,10 +71,11 @@ export function compareReports(baseline: AuditReport, candidate: AuditReport): C
     newIssues,
     resolvedIssues,
     unchangedIssues,
+    changedIssues,
     carriedAcceptances,
     resolvedAcceptedRisks,
     acceptanceCarryFailures,
-    gateExplanation: gateExplanation(baseline, candidate, resolvedIssues.length, newIssues.length),
+    gateExplanation: `${gateExplanation(baseline, candidate, resolvedIssues.length, newIssues.length)} ${changedIssues.length} finding(s) remain present with changed evidence or configuration.`,
     changeSignal,
   };
 }

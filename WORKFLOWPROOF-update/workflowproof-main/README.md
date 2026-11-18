@@ -1,4 +1,4 @@
-# WorkflowProof v0.12.0 (sales-readiness candidate)
+# WorkflowProof v0.13.1 (local trial and review evidence)
 
 Local-first automation preflight and hardening workbench for exported n8n workflow JSON. It helps builders surface static risk evidence before a workflow is deployed, handed off, or shared.
 
@@ -44,7 +44,7 @@ The comparison panel now shows:
 - Production score and weighted technical score for baseline and candidate.
 - Open Critical / High counts.
 - Accepted-risk counts.
-- Resolved, new and unchanged findings.
+- Resolved, new, changed-but-still-present and unchanged findings. Changed evidence at the same rule/node does not count as a resolution; it still invalidates prior risk acceptance.
 - Accepted risks carried into the candidate.
 - Accepted risks that disappeared because the finding was resolved.
 - Acceptance carry failures (should normally remain 0).
@@ -86,11 +86,11 @@ The app's **Request an audit** buttons open an email draft to `nuvekoia@gmail.co
 For a scoped n8n reliability review or a WorkflowProof pilot, contact [nuvekoia@gmail.com](mailto:nuvekoia@gmail.com). Do not email workflow exports, credentials, tokens, customer data or production URLs in the first message. Send a sanitized export only after receiving intake instructions.
 
 
-## Free accounts (v0.13)
+## Optional cloud history (v0.13.1)
 
-Optional Supabase-backed accounts provide two lifetime free scans per user, an account credit counter and downloadable report history. The workflow JSON remains in the browser; the generated audit report is stored in the user's Supabase account. Configure the project using [SUPABASE_SETUP.md](SUPABASE_SETUP.md) and run [supabase/schema.sql](supabase/schema.sql). Never expose a Supabase service-role key in browser environment variables.
+Local scans are free without an account, including when Supabase is absent or cloud credits are exhausted. Optional Supabase-backed accounts provide two cloud report saves per user. Only the explicit save button sends the generated report (including evidence and node names), score, workflow name and filename to Supabase. The source JSON is not uploaded. Configure optional cloud history using [SUPABASE_SETUP.md](SUPABASE_SETUP.md) and [supabase/schema.sql](supabase/schema.sql). Never expose a Supabase service-role key in browser environment variables.
 
-Premium checkout is not connected yet; exhausted accounts see a clear free-credit limit rather than a fake payment flow.
+Premium checkout is not connected. Exhausted cloud credits do not block local analysis or report downloads. A synthetic assisted-audit sample is available at `/sample-audit.html`.
 
 ## Private agency audit and CI
 

@@ -24,13 +24,13 @@ export function DropZone({ onFile, error }: Props) {
         onClick={() => inputRef.current?.click()}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click(); }}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inputRef.current?.click(); } }}
       >
         <input ref={inputRef} type="file" accept="application/json,.json" hidden onChange={(e) => handle(e.target.files)} />
         <div className="drop-icon">⇩</div>
         <h2>Drop your n8n workflow.json</h2>
         <p>or click to choose a file</p>
-        <div className="privacy-pill">The JSON is analyzed on this device. Scanning saves the report, findings, score, workflow name and filename to your Supabase-backed account. Use a sanitized export.</div>
+        <div className="privacy-pill">Your JSON and report stay on this device during local analysis. No account or n8n API key required. Cloud saving is optional and requires a separate action.</div>
       </div>
       {error && <div className="error-banner">{error}</div>}
     </div>

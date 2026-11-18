@@ -172,7 +172,7 @@ function buildReport(workflow: N8nWorkflow, acceptances: RiskAcceptance[] = []):
   const score = Math.min(baseScore, gate.cap);
 
   return {
-    version: '0.12.0',
+    version: '0.13.1',
     generatedAt: new Date().toISOString(),
     workflowName: workflow.name || 'Unnamed workflow',
     score,

@@ -1,0 +1,15 @@
+{
+  "name": "Lead intake — CRM handoff",
+  "active": false,
+  "nodes": [
+    {"id":"trigger","name":"Inbound lead","type":"n8n-nodes-base.webhook","typeVersion":2,"position":[0,0],"parameters":{"httpMethod":"POST","path":"sample-leads","authentication":"headerAuth"}},
+    {"id":"gate","name":"Required fields present?","type":"n8n-nodes-base.if","typeVersion":2,"position":[240,0],"parameters":{}},
+    {"id":"crm","name":"Write lead to CRM","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[480,-100],"parameters":{"method":"POST","url":"https://example.invalid/crm/leads"}},
+    {"id":"stop","name":"Ignore invalid lead","type":"n8n-nodes-base.noOp","typeVersion":1,"position":[480,100],"parameters":{}}
+  ],
+  "connections": {
+    "Inbound lead":{"main":[[{"node":"Required fields present?","type":"main","index":0}]]},
+    "Required fields present?":{"main":[[{"node":"Write lead to CRM","type":"main","index":0}],[{"node":"Ignore invalid lead","type":"main","index":0}]]}
+  },
+  "settings":{"executionOrder":"v1"}
+}

@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WorkflowProof sample audit — Lead intake</title>
+<style>
+:root{color-scheme:light;font:16px/1.58 system-ui,sans-serif;color:#182135;background:#f5f7fa}
+body{margin:0}main{max-width:740px;margin:0 auto;padding:clamp(22px,6vw,72px) 22px}
+header{border-top:4px solid #176764;padding-top:22px}h1{font-size:clamp(30px,6vw,48px);line-height:1.09;margin:12px 0 14px}
+h2{font-size:23px;margin:28px 0 8px}p{margin:8px 0 12px}article{background:white;padding:14px 20px;border:1px solid #d6dde6;margin:12px 0}
+a{color:#125e5c}small{color:#415066}li{margin-bottom:8px}summary{cursor:pointer}pre{overflow:auto;font-size:13px}
+</style>
+<main>
+<header><small>WORKFLOWPROOF · SAMPLE AUDIT</small><h1>Will every valid lead reach the CRM?</h1>
+<p>Pre-release review of a synthetic n8n workflow. The findings below come from the WorkflowProof engine. The workflow was reviewed as an export.</p></header>
+<p><strong>Release recommendation.</strong> Validate duplicate handling and recovery before handoff. Confirm that a valid lead creates exactly one CRM record, an invalid lead creates none, and a failed write is visible to the team.</p>
+<h2>What the export shows</h2>
+<article><b>HIGH · External side effects lack visible recovery path</b><p>1 external action node(s) have no obvious retry or recovery strategy.</p><small>Write lead to CRM</small></article><article><b>HIGH · Webhook can reach side effects without visible deduplication</b><p>Webhook can repeat 1 operational side effect(s) without an obvious idempotency guard.</p><small>Inbound lead</small></article><article><b>MEDIUM · HTTP call has no explicit timeout hint</b><p>No explicit timeout configuration was found in this HTTP node.</p><small>Write lead to CRM</small></article>
+<h2>What changed on re-review</h2>
+<p>Set a 10-second timeout on <strong>Write lead to CRM</strong> for this sample. The timeout finding cleared. The score stayed at <strong>79 → 79</strong> with 4 open High findings. Confirm the timeout with the provider and establish whether a write can be retried safely.</p>
+<h2>Three checks to run in staging</h2>
+<ol><li><strong>Valid and invalid input.</strong> Send each to the staging workflow. Verify one CRM record for the valid lead and zero for the invalid lead.</li>
+<li><strong>Duplicate delivery.</strong> Deliver the same event twice. Confirm the CRM contains exactly one record for that event.</li>
+<li><strong>Ambiguous failure.</strong> Simulate a CRM response timeout after recording the lead. Verify the team sees the failure and that recovery does not create another record.</li></ol>
+<p><small>These are proposed checks with expected outcomes. No staging execution is included in this sample.</small></p>
+<details><summary>View the synthetic workflow and engine findings</summary><h3>Baseline workflow JSON</h3><pre>{
+  "name": "Lead intake — CRM handoff",
+  "active": false,
+  "nodes": [
+    {
+      "id": "trigger",
+      "name": "Inbound lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sample-leads",
+        "authentication": "headerAuth"
+      }
+    },
+    {
+      "id": "gate",
+      "name": "Required fields present?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "crm",
+      "name": "Write lead to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        -100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://example.invalid/crm/leads"
+      }
+    },
+    {
+      "id": "stop",
+      "name": "Ignore invalid lead",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        480,
+        100
+      ],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Inbound lead": {
+      "main": [
+        [
+          {
+            "node": "Required fields present?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Required fields present?": {
+      "main": [
+        [
+          {
+            "node": "Write lead to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignore invalid lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}</pre><h3>Candidate workflow JSON</h3><pre>{
+  "name": "Lead intake — CRM handoff",
+  "active": false,
+  "nodes": [
+    {
+      "id": "trigger",
+      "name": "Inbound lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sample-leads",
+        "authentication": "headerAuth"
+      }
+    },
+    {
+      "id": "gate",
+      "name": "Required fields present?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "crm",
+      "name": "Write lead to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        -100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://example.invalid/crm/leads",
+        "options": {
+          "timeout": 10000
+        }
+      }
+    },
+    {
+      "id": "stop",
+      "name": "Ignore invalid lead",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        480,
+        100
+      ],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Inbound lead": {
+      "main": [
+        [
+          {
+            "node": "Required fields present?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Required fields present?": {
+      "main": [
+        [
+          {
+            "node": "Write lead to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignore invalid lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}</pre><h3>Original and re-audit findings</h3><pre>{
+  "baseline": {
+    "version": "0.12.0",
+    "generatedAt": "2026-11-13T19:14:35.567Z",
+    "workflowName": "Lead intake — CRM handoff",
+    "score": 79,
+    "grade": "D",
+    "scoring": {
+      "weightedBaseScore": 92,
+      "appliedCap": 79,
+      "capReason": "4 unresolved High findings cap Production Readiness at 79. Resolve or formally accept them before treating this workflow as production-ready.",
+      "gate": "hardening",
+      "gateLabel": "Needs hardening",
+      "acceptedRiskCount": 0,
+      "openRiskCount": 11
+    },
+    "summary": {
+      "critical": 0,
+      "high": 4,
+      "medium": 3,
+      "low": 2,
+      "info": 2,
+      "openCritical": 0,
+      "openHigh": 4,
+      "openMedium": 3,
+      "openLow": 2,
+      "openInfo": 2,
+      "nodesAnalyzed": 4,
+      "connectionsAnalyzed": 3,
+      "rulesRun": 60
+    },
+    "breakdown": {
+      "reliability": 84,
+      "recovery": 81,
+      "dataSafety": 100,
+      "security": 100,
+      "maintainability": 98,
+      "aiSafety": 100
+    },
+    "issues": [
+      {
+        "id": "HTTP_NO_RETRY-508758287",
+        "ruleId": "HTTP_NO_RETRY",
+        "title": "External request has no retry strategy",
+        "severity": "high",
+        "category": "Reliability",
+        "scorePenalty": 6,
+        "summary": "An HTTP request can fail transiently without any retry policy.",
+        "whyItMatters": "Rate limits, network interruptions and temporary 5xx errors can turn recoverable incidents into lost executions.",
+        "recommendation": "Add provider-supported idempotency first, then enable bounded retries. Mutating requests are not auto-retried by WorkflowProof.",
+        "nodeName": "Write lead to CRM",
+        "nodeType": "n8n-nodes-base.httpRequest",
+        "autoFixable": false,
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Add idempotency before enabling retries on this mutating HTTP request.",
+          "steps": [
+            "Identify whether the provider supports an idempotency key or duplicate request identifier.",
+            "Derive that key from a stable business/event identifier.",
+            "Ensure every retry reuses the same key.",
+            "Only then enable bounded retries with backoff."
+          ],
+          "caution": "WorkflowProof intentionally does not auto-enable retries on mutating HTTP methods because ambiguous success can duplicate side effects."
+        }
+      },
+      {
+        "id": "SIDE_EFFECT_WITHOUT_RECOVERY-1461833946",
+        "ruleId": "SIDE_EFFECT_WITHOUT_RECOVERY",
+        "title": "External side effects lack visible recovery path",
+        "severity": "high",
+        "category": "Recovery",
+        "scorePenalty": 6,
+        "summary": "1 external action node(s) have no obvious retry or recovery strategy.",
+        "whyItMatters": "Failures after partial external writes can leave systems inconsistent or require manual reconstruction.",
+        "recommendation": "Add bounded retries, explicit failure handling and a replayable dead-letter mechanism for high-value operations.",
+        "evidence": [
+          "Write lead to CRM"
+        ],
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Add explicit recovery to side-effect nodes that can leave external state inconsistent.",
+          "steps": [
+            "Identify which listed actions are safe to retry and which require idempotency first.",
+            "Add bounded retries only to retry-safe actions.",
+            "Route exhausted failures to an error output or recovery branch.",
+            "Store failed event context when manual replay may be required."
+          ],
+          "caution": "Automatically retrying a non-idempotent write can itself create duplicates, so this is intentionally guided."
+        }
+      },
+      {
+        "id": "NO_ERROR_WORKFLOW-1100676439",
+        "ruleId": "NO_ERROR_WORKFLOW",
+        "title": "No workflow-level error workflow configured",
+        "severity": "high",
+        "category": "Recovery",
+        "scorePenalty": 6,
+        "summary": "No workflow-level error workflow reference was detected.",
+        "whyItMatters": "Unhandled failures can disappear into execution history instead of entering an operational recovery process.",
+        "recommendation": "Configure an error workflow that captures context, alerts an owner and preserves enough data for replay.",
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Attach a workflow-level error workflow for production failures.",
+          "steps": [
+            "Create or select an n8n Error Trigger workflow.",
+            "Capture workflow name, execution ID, failing node and error message.",
+            "Send a concise operational alert without secrets.",
+            "Persist enough context for replay when the process is business-critical.",
+            "Select that workflow under the production workflow error settings."
+          ],
+          "caution": "The exported JSON does not include a safe target workflow ID that WorkflowProof can invent automatically."
+        }
+      },
+      {
+        "id": "WEBHOOK_SIDE_EFFECT_NO_DEDUP-2038860789",
+        "ruleId": "WEBHOOK_SIDE_EFFECT_NO_DEDUP",
+        "title": "Webhook can reach side effects without visible deduplication",
+        "severity": "high",
+        "category": "Reliability",
+        "scorePenalty": 7,
+        "summary": "Webhook can repeat 1 operational side effect(s) without an obvious idempotency guard.",
+        "whyItMatters": "Webhook providers commonly retry deliveries. The same event can therefore create duplicate records, messages or external writes and leave systems inconsistent.",
+        "recommendation": "Persist a stable event identifier before side effects, reject already-processed events and only mark success after the business action completes.",
+        "nodeName": "Inbound lead",
+        "nodeType": "n8n-nodes-base.webhook",
+        "evidence": [
+          "Reachable side effect: Write lead to CRM — Unknown mutation — HIGH"
+        ],
+        "autoFixable": false,
+        "impact": {
+          "impactClass": "Unknown mutation",
+          "reversibility": "Unknown",
+          "financialRisk": "Possible",
+          "affectedActions": [
+            "Write lead to CRM"
+          ],
+          "rationale": "No direct financial, destructive, or access-changing action was detected. Highest observed blast radius is operational/data-integrity impact, so this finding is High rather than Critical."
+        },
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Add an idempotency boundary before externally visible side effects.",
+          "steps": [
+            "Choose a stable event key from the webhook payload (provider event ID is preferred).",
+            "Check that key in a durable store before side effects run.",
+            "Stop or acknowledge the execution when the key already exists.",
+            "Only mark the key as completed after the business action succeeds.",
+            "Define replay behavior for failed/partial executions."
+          ],
+          "caution": "WorkflowProof cannot safely guess the correct business event key or persistence store from static JSON alone."
+        }
+      },
+      {
+        "id": "HTTP_NO_TIMEOUT_HINT-1715715783",
+        "ruleId": "HTTP_NO_TIMEOUT_HINT",
+        "title": "HTTP call has no explicit timeout hint",
+        "severity": "medium",
+        "category": "Reliability",
+        "scorePenalty": 3,
+        "summary": "No explicit timeout configuration was found in this HTTP node.",
+        "whyItMatters": "Slow upstream services can hold executions open and amplify concurrency or queue pressure.",
+        "recommendation": "Set a finite request timeout appropriate to the provider and design a timeout recovery path.",
+        "nodeName": "Write lead to CRM",
+        "nodeType": "n8n-nodes-base.httpRequest",
+        "autoFixable": true,
+        "repair": {
+          "mode": "auto",
+          "label": "SAFE AUTO-FIX",
+          "summary": "Add a finite request timeout without changing the workflow route.",
+          "steps": [
+            "Set HTTP Request options.timeout to 30000 ms.",
+            "Keep the existing success/error connections unchanged."
+          ]
+        }
+      },
+      {
+        "id": "NO_ALERTING_HINT-208513185",
+        "ruleId": "NO_ALERTING_HINT",
+        "title": "No operational alerting hint detected",
+        "severity": "medium",
+        "category": "Recovery",
+        "scorePenalty": 3,
+        "summary": "The workflow performs external actions but no obvious alerting/incident path was detected.",
+        "whyItMatters": "Silent production failures extend time-to-detection and can compound data loss or missed customer actions.",
+        "recommendation": "Send actionable failure alerts containing execution ID, failing node and a replay reference—without leaking secrets.",
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Add an operational alert for failures that require attention.",
+          "steps": [
+            "Choose an owner/channel for actionable alerts.",
+            "Include workflow, execution and failing-node context.",
+            "Avoid logging credentials or full sensitive payloads.",
+            "Rate-limit/deduplicate alerts so an outage does not create an alert storm."
+          ]
+        }
+      },
+      {
+        "id": "NO_REPLAY_HINT-506266596",
+        "ruleId": "NO_REPLAY_HINT",
+        "title": "No replay/dead-letter mechanism detected",
+        "severity": "medium",
+        "category": "Recovery",
+        "scorePenalty": 4,
+        "summary": "No explicit failed-event queue or replay mechanism was detected.",
+        "whyItMatters": "Manual recovery becomes difficult when transient incidents affect many events or external writes are only partially completed.",
+        "recommendation": "Persist failed event context in a replayable store for critical workflows.",
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Create a replay/dead-letter path for failed events.",
+          "steps": [
+            "Persist the original event plus execution/failure metadata.",
+            "Use a stable replay identifier.",
+            "Provide a controlled path to retry after the underlying issue is fixed.",
+            "Prevent replay from bypassing deduplication safeguards."
+          ]
+        }
+      },
+      {
+        "id": "NODE_WITHOUT_NOTES_CRITICAL-2107170",
+        "ruleId": "NODE_WITHOUT_NOTES_CRITICAL",
+        "title": "High-impact node is undocumented",
+        "severity": "low",
+        "category": "Maintainability",
+        "scorePenalty": 1,
+        "summary": "This high-impact integration has no node notes.",
+        "whyItMatters": "Operational context, invariants and provider assumptions are easily lost when workflows change hands.",
+        "recommendation": "Document purpose, failure expectations and any non-obvious assumptions directly on the node.",
+        "nodeName": "Inbound lead",
+        "nodeType": "n8n-nodes-base.webhook",
+        "autoFixable": true,
+        "repair": {
+          "mode": "manual",
+          "label": "MANUAL REVIEW",
+          "summary": "Document purpose, failure expectations and any non-obvious assumptions directly on the node.",
+          "steps": [
+            "Review the evidence and recommendation.",
+            "Confirm the business intent before changing workflow behavior."
+          ],
+          "caution": "WorkflowProof does not have enough static evidence to modify this safely."
+        }
+      },
+      {
+        "id": "NODE_WITHOUT_NOTES_CRITICAL-143650463",
+        "ruleId": "NODE_WITHOUT_NOTES_CRITICAL",
+        "title": "High-impact node is undocumented",
+        "severity": "low",
+        "category": "Maintainability",
+        "scorePenalty": 1,
+        "summary": "This high-impact integration has no node notes.",
+        "whyItMatters": "Operational context, invariants and provider assumptions are easily lost when workflows change hands.",
+        "recommendation": "Document purpose, failure expectations and any non-obvious assumptions directly on the node.",
+        "nodeName": "Write lead to CRM",
+        "nodeType": "n8n-nodes-base.httpRequest",
+        "autoFixable": true,
+        "repair": {
+          "mode": "manual",
+          "label": "MANUAL REVIEW",
+          "summary": "Document purpose, failure expectations and any non-obvious assumptions directly on the node.",
+          "steps": [
+            "Review the evidence and recommendation.",
+            "Confirm the business intent before changing workflow behavior."
+          ],
+          "caution": "WorkflowProof does not have enough static evidence to modify this safely."
+        }
+      },
+      {
+        "id": "NO_PINNED_TEST_DATA-449304530",
+        "ruleId": "NO_PINNED_TEST_DATA",
+        "title": "No pinned example data detected",
+        "severity": "info",
+        "category": "Maintainability",
+        "scorePenalty": 0,
+        "summary": "The export contains no pinned example data.",
+        "whyItMatters": "Pinned data is not required in production, but realistic fixtures can make regression testing and review easier during development.",
+        "recommendation": "Maintain representative test fixtures outside production if you intentionally avoid pinning data in the workflow.",
+        "repair": {
+          "mode": "manual",
+          "label": "MANUAL REVIEW",
+          "summary": "Maintain representative test fixtures outside production if you intentionally avoid pinning data in the workflow.",
+          "steps": [
+            "Review the evidence and recommendation.",
+            "Confirm the business intent before changing workflow behavior."
+          ],
+          "caution": "WorkflowProof does not have enough static evidence to modify this safely."
+        }
+      },
+      {
+        "id": "NO_VERSION_NOTE-500041823",
+        "ruleId": "NO_VERSION_NOTE",
+        "title": "Workflow lacks visible version/change note",
+        "severity": "info",
+        "category": "Maintainability",
+        "scorePenalty": 0,
+        "summary": "No human-readable version/change marker was detected.",
+        "whyItMatters": "Automation changes can alter external behavior without the deployment discipline commonly used for application code.",
+        "recommendation": "Keep workflow JSON in source control and document meaningful production changes.",
+        "repair": {
+          "mode": "manual",
+          "label": "MANUAL REVIEW",
+          "summary": "Keep workflow JSON in source control and document meaningful production changes.",
+          "steps": [
+            "Review the evidence and recommendation.",
+            "Confirm the business intent before changing workflow behavior."
+          ],
+          "caution": "WorkflowProof does not have enough static evidence to modify this safely."
+        }
+      }
+    ]
+  },
+  "candidate": {
+    "version": "0.12.0",
+    "generatedAt": "2026-11-13T19:14:35.570Z",
+    "workflowName": "Lead intake — CRM handoff",
+    "score": 79,
+    "grade": "D",
+    "scoring": {
+      "weightedBaseScore": 93,
+      "appliedCap": 79,
+      "capReason": "4 unresolved High findings cap Production Readiness at 79. Resolve or formally accept them before treating this workflow as production-ready.",
+      "gate": "hardening",
+      "gateLabel": "Needs hardening",
+      "acceptedRiskCount": 0,
+      "openRiskCount": 10
+    },
+    "summary": {
+      "critical": 0,
+      "high": 4,
+      "medium": 2,
+      "low": 2,
+      "info": 2,
+      "openCritical": 0,
+      "openHigh": 4,
+      "openMedium": 2,
+      "openLow": 2,
+      "openInfo": 2,
+      "nodesAnalyzed": 4,
+      "connectionsAnalyzed": 3,
+      "rulesRun": 60
+    },
+    "breakdown": {
+      "reliability": 87,
+      "recovery": 81,
+      "dataSafety": 100,
+      "security": 100,
+      "maintainability": 98,
+      "aiSafety": 100
+    },
+    "issues": [
+      {
+        "id": "HTTP_NO_RETRY-604102733",
+        "ruleId": "HTTP_NO_RETRY",
+        "title": "External request has no retry strategy",
+        "severity": "high",
+        "category": "Reliability",
+        "scorePenalty": 6,
+        "summary": "An HTTP request can fail transiently without any retry policy.",
+        "whyItMatters": "Rate limits, network interruptions and temporary 5xx errors can turn recoverable incidents into lost executions.",
+        "recommendation": "Add provider-supported idempotency first, then enable bounded retries. Mutating requests are not auto-retried by WorkflowProof.",
+        "nodeName": "Write lead to CRM",
+        "nodeType": "n8n-nodes-base.httpRequest",
+        "autoFixable": false,
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Add idempotency before enabling retries on this mutating HTTP request.",
+          "steps": [
+            "Identify whether the provider supports an idempotency key or duplicate request identifier.",
+            "Derive that key from a stable business/event identifier.",
+            "Ensure every retry reuses the same key.",
+            "Only then enable bounded retries with backoff."
+          ],
+          "caution": "WorkflowProof intentionally does not auto-enable retries on mutating HTTP methods because ambiguous success can duplicate side effects."
+        }
+      },
+      {
+        "id": "SIDE_EFFECT_WITHOUT_RECOVERY-1461833946",
+        "ruleId": "SIDE_EFFECT_WITHOUT_RECOVERY",
+        "title": "External side effects lack visible recovery path",
+        "severity": "high",
+        "category": "Recovery",
+        "scorePenalty": 6,
+        "summary": "1 external action node(s) have no obvious retry or recovery strategy.",
+        "whyItMatters": "Failures after partial external writes can leave systems inconsistent or require manual reconstruction.",
+        "recommendation": "Add bounded retries, explicit failure handling and a replayable dead-letter mechanism for high-value operations.",
+        "evidence": [
+          "Write lead to CRM"
+        ],
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Add explicit recovery to side-effect nodes that can leave external state inconsistent.",
+          "steps": [
+            "Identify which listed actions are safe to retry and which require idempotency first.",
+            "Add bounded retries only to retry-safe actions.",
+            "Route exhausted failures to an error output or recovery branch.",
+            "Store failed event context when manual replay may be required."
+          ],
+          "caution": "Automatically retrying a non-idempotent write can itself create duplicates, so this is intentionally guided."
+        }
+      },
+      {
+        "id": "NO_ERROR_WORKFLOW-1100676439",
+        "ruleId": "NO_ERROR_WORKFLOW",
+        "title": "No workflow-level error workflow configured",
+        "severity": "high",
+        "category": "Recovery",
+        "scorePenalty": 6,
+        "summary": "No workflow-level error workflow reference was detected.",
+        "whyItMatters": "Unhandled failures can disappear into execution history instead of entering an operational recovery process.",
+        "recommendation": "Configure an error workflow that captures context, alerts an owner and preserves enough data for replay.",
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Attach a workflow-level error workflow for production failures.",
+          "steps": [
+            "Create or select an n8n Error Trigger workflow.",
+            "Capture workflow name, execution ID, failing node and error message.",
+            "Send a concise operational alert without secrets.",
+            "Persist enough context for replay when the process is business-critical.",
+            "Select that workflow under the production workflow error settings."
+          ],
+          "caution": "The exported JSON does not include a safe target workflow ID that WorkflowProof can invent automatically."
+        }
+      },
+      {
+        "id": "WEBHOOK_SIDE_EFFECT_NO_DEDUP-2038860789",
+        "ruleId": "WEBHOOK_SIDE_EFFECT_NO_DEDUP",
+        "title": "Webhook can reach side effects without visible deduplication",
+        "severity": "high",
+        "category": "Reliability",
+        "scorePenalty": 7,
+        "summary": "Webhook can repeat 1 operational side effect(s) without an obvious idempotency guard.",
+        "whyItMatters": "Webhook providers commonly retry deliveries. The same event can therefore create duplicate records, messages or external writes and leave systems inconsistent.",
+        "recommendation": "Persist a stable event identifier before side effects, reject already-processed events and only mark success after the business action completes.",
+        "nodeName": "Inbound lead",
+        "nodeType": "n8n-nodes-base.webhook",
+        "evidence": [
+          "Reachable side effect: Write lead to CRM — Unknown mutation — HIGH"
+        ],
+        "autoFixable": false,
+        "impact": {
+          "impactClass": "Unknown mutation",
+          "reversibility": "Unknown",
+          "financialRisk": "Possible",
+          "affectedActions": [
+            "Write lead to CRM"
+          ],
+          "rationale": "No direct financial, destructive, or access-changing action was detected. Highest observed blast radius is operational/data-integrity impact, so this finding is High rather than Critical."
+        },
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Add an idempotency boundary before externally visible side effects.",
+          "steps": [
+            "Choose a stable event key from the webhook payload (provider event ID is preferred).",
+            "Check that key in a durable store before side effects run.",
+            "Stop or acknowledge the execution when the key already exists.",
+            "Only mark the key as completed after the business action succeeds.",
+            "Define replay behavior for failed/partial executions."
+          ],
+          "caution": "WorkflowProof cannot safely guess the correct business event key or persistence store from static JSON alone."
+        }
+      },
+      {
+        "id": "NO_ALERTING_HINT-208513185",
+        "ruleId": "NO_ALERTING_HINT",
+        "title": "No operational alerting hint detected",
+        "severity": "medium",
+        "category": "Recovery",
+        "scorePenalty": 3,
+        "summary": "The workflow performs external actions but no obvious alerting/incident path was detected.",
+        "whyItMatters": "Silent production failures extend time-to-detection and can compound data loss or missed customer actions.",
+        "recommendation": "Send actionable failure alerts containing execution ID, failing node and a replay reference—without leaking secrets.",
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Add an operational alert for failures that require attention.",
+          "steps": [
+            "Choose an owner/channel for actionable alerts.",
+            "Include workflow, execution and failing-node context.",
+            "Avoid logging credentials or full sensitive payloads.",
+            "Rate-limit/deduplicate alerts so an outage does not create an alert storm."
+          ]
+        }
+      },
+      {
+        "id": "NO_REPLAY_HINT-506266596",
+        "ruleId": "NO_REPLAY_HINT",
+        "title": "No replay/dead-letter mechanism detected",
+        "severity": "medium",
+        "category": "Recovery",
+        "scorePenalty": 4,
+        "summary": "No explicit failed-event queue or replay mechanism was detected.",
+        "whyItMatters": "Manual recovery becomes difficult when transient incidents affect many events or external writes are only partially completed.",
+        "recommendation": "Persist failed event context in a replayable store for critical workflows.",
+        "repair": {
+          "mode": "guided",
+          "label": "GUIDED FIX",
+          "summary": "Create a replay/dead-letter path for failed events.",
+          "steps": [
+            "Persist the original event plus execution/failure metadata.",
+            "Use a stable replay identifier.",
+            "Provide a controlled path to retry after the underlying issue is fixed.",
+            "Prevent replay from bypassing deduplication safeguards."
+          ]
+        }
+      },
+      {
+        "id": "NODE_WITHOUT_NOTES_CRITICAL-2107170",
+        "ruleId": "NODE_WITHOUT_NOTES_CRITICAL",
+        "title": "High-impact node is undocumented",
+        "severity": "low",
+        "category": "Maintainability",
+        "scorePenalty": 1,
+        "summary": "This high-impact integration has no node notes.",
+        "whyItMatters": "Operational context, invariants and provider assumptions are easily lost when workflows change hands.",
+        "recommendation": "Document purpose, failure expectations and any non-obvious assumptions directly on the node.",
+        "nodeName": "Inbound lead",
+        "nodeType": "n8n-nodes-base.webhook",
+        "autoFixable": true,
+        "repair": {
+          "mode": "manual",
+          "label": "MANUAL REVIEW",
+          "summary": "Document purpose, failure expectations and any non-obvious assumptions directly on the node.",
+          "steps": [
+            "Review the evidence and recommendation.",
+            "Confirm the business intent before changing workflow behavior."
+          ],
+          "caution": "WorkflowProof does not have enough static evidence to modify this safely."
+        }
+      },
+      {
+        "id": "NODE_WITHOUT_NOTES_CRITICAL-882619615",
+        "ruleId": "NODE_WITHOUT_NOTES_CRITICAL",
+        "title": "High-impact node is undocumented",
+        "severity": "low",
+        "category": "Maintainability",
+        "scorePenalty": 1,
+        "summary": "This high-impact integration has no node notes.",
+        "whyItMatters": "Operational context, invariants and provider assumptions are easily lost when workflows change hands.",
+        "recommendation": "Document purpose, failure expectations and any non-obvious assumptions directly on the node.",
+        "nodeName": "Write lead to CRM",
+        "nodeType": "n8n-nodes-base.httpRequest",
+        "autoFixable": true,
+        "repair": {
+          "mode": "manual",
+          "label": "MANUAL REVIEW",
+          "summary": "Document purpose, failure expectations and any non-obvious assumptions directly on the node.",
+          "steps": [
+            "Review the evidence and recommendation.",
+            "Confirm the business intent before changing workflow behavior."
+          ],
+          "caution": "WorkflowProof does not have enough static evidence to modify this safely."
+        }
+      },
+      {
+        "id": "NO_PINNED_TEST_DATA-449304530",
+        "ruleId": "NO_PINNED_TEST_DATA",
+        "title": "No pinned example data detected",
+        "severity": "info",
+        "category": "Maintainability",
+        "scorePenalty": 0,
+        "summary": "The export contains no pinned example data.",
+        "whyItMatters": "Pinned data is not required in production, but realistic fixtures can make regression testing and review easier during development.",
+        "recommendation": "Maintain representative test fixtures outside production if you intentionally avoid pinning data in the workflow.",
+        "repair": {
+          "mode": "manual",
+          "label": "MANUAL REVIEW",
+          "summary": "Maintain representative test fixtures outside production if you intentionally avoid pinning data in the workflow.",
+          "steps": [
+            "Review the evidence and recommendation.",
+            "Confirm the business intent before changing workflow behavior."
+          ],
+          "caution": "WorkflowProof does not have enough static evidence to modify this safely."
+        }
+      },
+      {
+        "id": "NO_VERSION_NOTE-500041823",
+        "ruleId": "NO_VERSION_NOTE",
+        "title": "Workflow lacks visible version/change note",
+        "severity": "info",
+        "category": "Maintainability",
+        "scorePenalty": 0,
+        "summary": "No human-readable version/change marker was detected.",
+        "whyItMatters": "Automation changes can alter external behavior without the deployment discipline commonly used for application code.",
+        "recommendation": "Keep workflow JSON in source control and document meaningful production changes.",
+        "repair": {
+          "mode": "manual",
+          "label": "MANUAL REVIEW",
+          "summary": "Keep workflow JSON in source control and document meaningful production changes.",
+          "steps": [
+            "Review the evidence and recommendation.",
+            "Confirm the business intent before changing workflow behavior."
+          ],
+          "caution": "WorkflowProof does not have enough static evidence to modify this safely."
+        }
+      }
+    ]
+  }
+}</pre></details>
+<h2>Request an assisted review</h2><p>USD 49 for one sanitized n8n export, a prioritized report and one re-review. Target delivery is two business days after intake.</p>
+<a href="mailto:nuvekoia@gmail.com?subject=WorkflowProof%20pilot%20review">Tell me what your workflow needs to do</a>
+</main></html>

@@ -233,6 +233,7 @@ export interface ComparisonResult {
   newIssues: RuleIssue[];
   resolvedIssues: RuleIssue[];
   unchangedIssues: RuleIssue[];
+  changedIssues: RuleIssue[];
   carriedAcceptances: number;
   resolvedAcceptedRisks: number;
   acceptanceCarryFailures: number;

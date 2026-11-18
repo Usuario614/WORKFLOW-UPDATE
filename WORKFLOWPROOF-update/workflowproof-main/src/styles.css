@@ -116,3 +116,6 @@
 .scan-credit-banner b{color:#cfff72;font-size:16px}
 .scan-credit-banner button{margin-left:auto}
 @media(max-width:650px){.history-row{grid-template-columns:minmax(0,1fr) auto}.history-row button{grid-column:1/-1;justify-self:start}.auth-form{grid-template-columns:1fr}.auth-form button{grid-column:auto}.account-panel{align-items:flex-start;flex-direction:column}.history-row{grid-template-columns:1fr auto}.history-row time{grid-column:1/-1}.account-chip{justify-content:flex-end}.scan-credit-banner{flex-wrap:wrap}}
+
+.local-intro{max-width:960px;margin:24px auto}.local-intro .drop-zone{margin-bottom:0}.optional-account{max-width:960px;margin:20px auto}.optional-account summary{cursor:pointer;padding:14px;font-size:1rem}.local-notice{max-width:960px;margin:18px auto;color:#cbd5e1}
+.comparison-grid-v09{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
