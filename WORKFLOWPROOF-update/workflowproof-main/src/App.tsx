@@ -98,6 +98,8 @@ export default function App() {
   const [authPassword, setAuthPassword] = useState('');
   const [authMessage, setAuthMessage] = useState('');
   const [authBusy, setAuthBusy] = useState(false);
+  const [cloudBusy, setCloudBusy] = useState(false);
+  const [cloudMessage, setCloudMessage] = useState('');
   const [credits, setCredits] = useState<number | null>(null);
   const [history, setHistory] = useState<Array<{ id: string; workflow_name: string; score: number; created_at: string }>>([]);
   const compareInputRef = useRef<HTMLInputElement | null>(null);
@@ -127,7 +129,7 @@ export default function App() {
         supabase.from('scan_reports').select('id, workflow_name, score, created_at').order('created_at', { ascending: false }).limit(10),
       ]);
       if (!alive) return;
-      if (profileError) setAuthMessage('No pudimos cargar tus créditos. Revisá que hayas ejecutado el SQL de configuración en Supabase.');
+      if (profileError) setAuthMessage('Cloud history is temporarily unavailable. You can still scan locally.');
       else setCredits(profile.free_scans_remaining);
       setHistory(reports || []);
     })();
@@ -148,7 +150,7 @@ export default function App() {
         const { data, error } = await supabase.auth.signUp({ email: authEmail.trim(), password: authPassword });
         if (error) throw error;
         if (!data.session) setAuthMessage('Cuenta creada. Revisá tu correo para confirmar el registro y después iniciá sesión.');
-        else setAuthMessage('¡Cuenta creada! Tenés 2 escaneos gratuitos.');
+        else setAuthMessage('Account created. You have two cloud report saves.');
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: authEmail.trim(), password: authPassword });
         if (error) throw error;
@@ -188,9 +190,7 @@ export default function App() {
 
   async function analyze(file: File) {
     setError('');
-    if (!supabase) { setError('El registro todavía no está configurado. El administrador debe completar las variables de Supabase en Render.'); return; }
-    if (!user) { setError('Creá una cuenta gratuita o iniciá sesión para usar tus 2 escaneos de cortesía.'); return; }
-    if (credits !== null && credits <= 0) { setError('Ya utilizaste tus 2 escaneos gratuitos. Próximamente podrás ampliar tu plan.'); return; }
+    setCloudMessage('');
     setProof(null); setShowTests(false); setProposalSession(null); setAcceptanceSession(null); setComparison(null); setAcceptances([]); setWorkflowKey('');
     try {
       const text = await file.text();
@@ -203,20 +203,32 @@ export default function App() {
         if (Array.isArray(saved)) restored = saved.filter((item) => item && typeof item.issueId === 'string' && typeof item.ruleId === 'string' && typeof item.owner === 'string' && typeof item.reason === 'string');
       } catch { /* Corrupt local data must never prevent an audit. */ }
       const result = auditWorkflow(raw, restored);
-      const { data: saved, error: saveError } = await supabase.rpc('save_scan_report', {
-        p_workflow_name: result.workflowName || file.name,
-        p_file_name: file.name,
-        p_score: result.score,
-        p_report: result,
-      });
-      if (saveError) throw new Error(saveError.message.includes('NO_FREE_SCANS') ? 'Ya utilizaste tus 2 escaneos gratuitos.' : `No pudimos guardar el informe: ${saveError.message}`);
-      setCredits(typeof saved?.remaining === 'number' ? saved.remaining : Math.max(0, (credits ?? 2) - 1));
-      setHistory((items) => [{ id: saved.report_id, workflow_name: result.workflowName || file.name, score: result.score, created_at: new Date().toISOString() }, ...items].slice(0, 10));
       setWorkflow(raw); setReport(result); setFileName(file.name); setWorkflowKey(key); setAcceptances(restored);
     } catch (e) {
       setWorkflow(null); setReport(null);
       setError(e instanceof Error ? e.message : 'Could not analyze this file.');
     }
+  }
+
+  async function saveToAccount() {
+    if (!supabase || !user || !activeReport || cloudBusy) return;
+    setCloudBusy(true); setCloudMessage('');
+    const result = activeReport;
+    try {
+      const { data: saved, error: saveError } = await supabase.rpc('save_scan_report', {
+        p_workflow_name: result.workflowName || fileName,
+        p_file_name: fileName,
+        p_score: result.score,
+        p_report: result,
+      });
+      if (saveError) throw new Error(saveError.message.includes('NO_FREE_SCANS') ? 'You have used your two cloud report saves.' : `No pudimos guardar el informe: ${saveError.message}`);
+      setCredits(typeof saved?.remaining === 'number' ? saved.remaining : Math.max(0, (credits ?? 2) - 1));
+      setHistory((items) => [{ id: saved.report_id, workflow_name: result.workflowName || fileName, score: result.score, created_at: new Date().toISOString() }, ...items].slice(0, 10));
+
+      setCloudMessage('Report saved to your account.');
+    } catch (e) {
+      setCloudMessage(e instanceof Error ? e.message : 'Could not save the report. Your local report is still available.');
+    } finally { setCloudBusy(false); }
   }
 
   async function loadDemo(brokenRoute = false) {
@@ -424,9 +436,9 @@ export default function App() {
     return (
       <div className="app-shell">
         <header className="topbar">
-          <div className="brand" onClick={reset}><div className="mark">W</div><span>WorkflowProof</span><em>v0.13</em></div>
+          <div className="brand" onClick={reset}><div className="mark">W</div><span>WorkflowProof</span><em>v0.13.1</em></div>
           <div className="top-meta">Automation preflight for n8n workflows</div>
-          {user && <div className="account-chip"><span>{user.email}</span><b>{credits ?? '…'} free scans</b><button onClick={signOut}>Sign out</button></div>}
+          {user && <div className="account-chip"><span>{user.email}</span><b>{credits ?? '…'} cloud saves</b><button onClick={signOut}>Sign out</button></div>}
         </header>
         <main className="landing">
           <section className="hero">
@@ -434,13 +446,17 @@ export default function App() {
             <h1>Catch costly workflow mistakes<br/><span>before they reach production.</span></h1>
             <p>WorkflowProof is a local preflight for n8n exports: actionable evidence for reliability, duplicate actions, security, data safety and AI risk—without uploading your workflow.</p>
           </section>
-          {!supabase ? (
-            <section className="auth-card"><h2>Free account setup required</h2><p>El administrador debe configurar VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en Render para activar el registro y los 2 escaneos gratuitos.</p></section>
-          ) : !user ? (
+          <section className="panel local-intro" aria-labelledby="local-title">
+            <div className="eyebrow">FREE LOCAL SCAN · NO SIGN-UP</div>
+            <h2 id="local-title">Review your own workflow now</h2>
+            <p>Select an n8n JSON export. The analysis and report stay in this browser unless you explicitly save a report to your account.</p>
+            <DropZone onFile={analyze} error={error} />
+          </section>
+          {supabase && !user && <details className="optional-account"><summary>Optional: sign in to save reports in the cloud</summary>
             <section className="auth-card">
-              <div className="eyebrow">FREE ACCOUNT · 2 COMPLETE SCANS</div>
+              <div className="eyebrow">OPTIONAL CLOUD HISTORY</div>
               <h2>{authMode === 'signup' ? 'Create your free account' : 'Welcome back'}</h2>
-              <p>Two complete workflow scans, detailed reports and a private report history. No credit card required.</p>
+              <p>Local scans are free without an account. An account includes two cloud report saves.</p>
               <form onSubmit={submitAuth} className="auth-form">
                 <label>Email<input type="email" autoComplete="email" required value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder="you@example.com" /></label>
                 <label>Password<input type="password" autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'} minLength={8} required value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} placeholder="At least 8 characters" /></label>
@@ -450,19 +466,13 @@ export default function App() {
               {authMessage && <div className="auth-message">{authMessage}</div>}
               {authLoading && <div className="auth-message">Checking session…</div>}
             </section>
-          ) : (
-            <section className="account-panel">
-              <div><div className="eyebrow">YOUR FREE ACCOUNT</div><h2>Welcome, {user.email}</h2><p>{credits ?? '…'} of 2 free scans remaining · Complete reports saved to your account.</p></div>
-              <div className="credit-meter"><b>{credits ?? '…'} / 2</b><span>FREE SCANS LEFT</span></div>
-            </section>
-          )}
-          {user && credits === 0 && <section className="auth-card"><h2>Your two free scans are complete</h2><p>Your saved reports are available below. For a human review of one sanitized workflow, <a href={AUDIT_MAILTO}>request the USD 49 assisted audit</a>.</p></section>}
-          {user && credits !== 0 && <DropZone onFile={analyze} error={error} />}
-          {!user && supabase && error && <div className="error-banner">{error}</div>}
+
+          </details>}
+          {user && <p className="local-notice">Local scans are free. Cloud saves remaining: {credits ?? '…'} / 2. Saving is optional.</p>}
           {user && history.length > 0 && <section className="history-card"><div className="eyebrow">YOUR RECENT REPORTS</div><h3>Scan history</h3>{history.map((item) => <div className="history-row" key={item.id}><span>{item.workflow_name}</span><b>Score {item.score}</b><time>{new Date(item.created_at).toLocaleDateString()}</time><button onClick={() => downloadSavedReport(item.id, item.workflow_name)}>Download report</button></div>)}</section>}
           <div className="landing-tools"><button className="primary" onClick={() => loadDemo()}>Run a safe demo</button><button onClick={() => loadDemo(true)}>Test a broken connection</button><button onClick={() => setSelfTest(runSelfTest())}>Run engine self-test</button><span>The demo is synthetic and never contacts a live system. Static analysis is evidence for review, never a security certification.</span></div>
           {selfTest && <SelfTestPanel result={selfTest} onClose={() => setSelfTest(null)} />}
-          <div className="trust-row"><span>✓ 2 free scans</span><span>✓ Workflow stays on your device</span><span>✓ No n8n API key</span><span>✓ Analysis runs in your browser</span></div>
+          <div className="trust-row"><span>✓ Free local scans</span><span>✓ Workflow stays on your device</span><span>✓ No n8n API key</span><span>✓ Analysis runs in your browser</span></div>
 
           <section className="commercial-offer" aria-labelledby="offer-title">
             <div className="offer-copy">
@@ -482,7 +492,7 @@ export default function App() {
               <div className="offer-price">$49 <span>USD</span></div>
               <p>One workflow · fixed scope</p>
               <a className="button-link primary" href={AUDIT_MAILTO}>Request an audit</a>
-              <a className="offer-secondary" href="mailto:nuvekoia@gmail.com?subject=WorkflowProof%20sample%20report">Ask for a sample report</a>
+              <a className="offer-secondary" href="/sample-audit.html" target="_blank" rel="noreferrer">View a sample report</a>
               <div className="offer-note">No payment is collected on this page. Scope and payment method are confirmed with you before work starts.</div>
             </div>
           </section>
@@ -498,7 +508,7 @@ export default function App() {
             <h2>Evidence for a reviewer—not a substitute for one.</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 14 }}>
               <div><b>What it does</b><p>Locally inspects an n8n JSON export, explains deterministic findings and creates reviewable evidence.</p></div>
-              <div><b>What it will not do</b><p>It does not execute workflows, access n8n, send data away, invent credentials or silently change business logic.</p></div>
+              <div><b>What it will not do</b><p>It does not execute workflows or access n8n. Local scans do not upload your file or report. Optional cloud saves send report contents to Supabase.</p></div>
               <div><b>What remains yours</b><p>Validate real-world behavior, approve every guided change and decide whether a release is safe for your operations.</p></div>
             </div>
           </section>
@@ -520,15 +530,16 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="brand" onClick={reset}><div className="mark">W</div><span>WorkflowProof</span><em>v0.13</em></div>
+        <div className="brand" onClick={reset}><div className="mark">W</div><span>WorkflowProof</span><em>v0.13.1</em></div>
         <div className="top-meta">Automation preflight for n8n workflows</div>
-        {user && <div className="account-chip"><span>{user.email}</span><b>{credits ?? '…'} free scans</b><button onClick={signOut}>Sign out</button></div>}
+        {user && <div className="account-chip"><span>{user.email}</span><b>{credits ?? '…'} cloud saves</b><button onClick={signOut}>Sign out</button></div>}
       </header>
 
       <main className="dashboard">
         <input ref={compareInputRef} type="file" accept="application/json,.json" hidden onChange={(e) => { const file = e.target.files?.[0]; if (file) compareVersion(file); e.currentTarget.value = ''; }} />
         <input ref={acceptanceInputRef} type="file" accept="application/json,.json" hidden onChange={(e) => { const file = e.target.files?.[0]; if (file) importAcceptances(file); e.currentTarget.value = ''; }} />
-        <div className="scan-credit-banner"><span>Free scans remaining</span><b>{credits ?? '…'} / 2</b><button onClick={reset}>Back to account</button></div>
+        <div className="scan-credit-banner"><span>Local analysis · report stays in this browser</span><button onClick={reset}>Scan another workflow</button></div>
+        {supabase && user && <section className="panel" aria-label="Optional cloud save"><p>Saving sends the full report, including evidence and node names, workflow name and filename to Supabase. Review sensitive details first. Cloud saves left: {credits ?? '…'} / 2.</p><button disabled={cloudBusy || credits === 0} onClick={saveToAccount}>{cloudBusy ? 'Saving…' : 'Save this report to my account'}</button>{cloudMessage && <p role="status">{cloudMessage}</p>}</section>}
         <div className="report-head">
           <div><button className="link-button" onClick={reset}>← New scan</button><div className="eyebrow">WORKFLOW</div><h1>{report.workflowName}</h1><p>{fileName} · {report.summary.nodesAnalyzed} nodes · {report.summary.connectionsAnalyzed} connections · {report.summary.rulesRun} rules · engine {currentReport.version}</p></div>
           <div className="actions">
