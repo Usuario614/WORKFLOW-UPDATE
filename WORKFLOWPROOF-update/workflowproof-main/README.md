@@ -77,6 +77,10 @@ WorkflowProof intentionally does not equate a successful n8n execution with a sa
 Static analysis is not a guarantee of correctness or security. Review generated changes before production.
 
 
+## Agency acquisition
+
+The [buyer evaluation page](https://workflow-updatev1.onrender.com/acquire.html) starts with the CRM handoff report and explains how to compare WorkflowProof with an agency’s existing review. See [Acquisition evaluation](docs/ACQUISITION.md) for the candidate source baseline and verification steps.
+
 ## Commercial pilot
 
 WorkflowProof now includes a clearly scoped assisted-audit offer in the app. The founding pilot is **USD 49 for one sanitized workflow**, with a written report, prioritized remediation plan and one follow-up review of buyer-approved changes. Target delivery is two business days after a valid intake is received. This is a price-validation experiment, not a permanent price or a claim of proven market demand.

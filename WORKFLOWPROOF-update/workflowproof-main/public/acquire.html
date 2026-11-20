@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Evaluate WorkflowProof on an n8n workflow your agency has already reviewed.">
+  <title>Evaluate WorkflowProof for your n8n agency</title>
+  <style>
+    :root { color-scheme: light; font: 16px/1.6 system-ui, sans-serif; color: #182135; background: #f5f7fa; }
+    body { margin: 0; }
+    main { max-width: 760px; margin: 0 auto; padding: clamp(24px, 6vw, 72px) 22px; }
+    header { border-top: 4px solid #176764; padding-top: 22px; }
+    h1 { font-size: clamp(34px, 6vw, 54px); line-height: 1.08; margin: 12px 0 16px; }
+    h2 { font-size: 24px; line-height: 1.25; margin: 0 0 8px; }
+    p { margin: 8px 0 14px; }
+    section { background: white; border: 1px solid #d6dde6; padding: 20px; margin: 20px 0; }
+    a { color: #125e5c; text-underline-offset: 3px; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 20px 0; }
+    .primary { display: inline-block; padding: 10px 16px; background: #125e5c; color: white; border-radius: 5px; font-weight: 650; }
+    li { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a href="/">WorkflowProof</a>
+      <h1>Review n8n workflows before client handoff</h1>
+      <p>Evaluate WorkflowProof on a workflow your agency has already reviewed. Compare the findings with your existing QA and see whether they change what you fix, test or document before release.</p>
+      <div class="actions">
+        <a class="primary" href="mailto:nuvekoia@gmail.com?subject=Evaluate%20WorkflowProof%20for%20our%20agency&amp;body=Hi%20Sebasti%C3%A1n%2C%0A%0AOur%20team%20uses%20n8n%20for%3A%20%0AThe%20workflow%20we%20could%20compare%3A%20%0AThe%20risk%20we%20want%20to%20review%3A%20%0A%0APlease%20send%20the%20evaluation%20and%20data-handling%20scope.%20I%20will%20keep%20the%20first%20email%20attachment-free.">Request an evaluation by email</a>
+        <a href="/sample-audit.html">Read the CRM handoff report</a>
+      </div>
+    </header>
+
+    <section aria-labelledby="example">
+      <h2 id="example">Would the CRM get one record per lead?</h2>
+      <p>In the sample, WorkflowProof flags a missing visible recovery path, a route that can repeat a CRM write without visible deduplication, and an HTTP request without an explicit timeout. The re-review shows the timeout finding cleared and identifies what still needs a staging test.</p>
+      <p>The sample uses a synthetic workflow. Your team can reproduce the process locally with one of its own sanitized exports.</p>
+    </section>
+
+    <section aria-labelledby="evaluation">
+      <h2 id="evaluation">Compare one workflow against your current review</h2>
+      <ol>
+        <li>Pick a workflow your team already reviewed and a release decision you can compare.</li>
+        <li><a href="/">Run the free local scan</a> and review the findings alongside your existing checklist. Keep the export on your device.</li>
+        <li>Record review time, useful and incorrect findings, any change to your release decision, and follow-up tests your team would run in staging.</li>
+      </ol>
+      <p>A first email can describe the workflow in general terms. Keep customer data, credentials, and production access inside your team.</p>
+    </section>
+
+    <section aria-labelledby="purchase">
+      <h2 id="purchase">Full software acquisition</h2>
+      <p>The proposed transfer covers application source, the rule engine, tests, build and deployment documentation, and an agreed technical handover. The exact source revision, transferable rights and support scope are reviewed during diligence.</p>
+      <p>WorkflowProof is an early-stage software asset with no verified recurring revenue. Static findings guide review. Your n8n staging tests validate execution behavior.</p>
+    </section>
+  </main>
+</body>
+</html>

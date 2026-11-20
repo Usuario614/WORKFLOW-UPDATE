@@ -445,6 +445,10 @@ export default function App() {
             <div className="kicker">SCAN LOCALLY · SHARE SAFELY · SHIP WITH EVIDENCE</div>
             <h1>Catch costly workflow mistakes<br/><span>before they reach production.</span></h1>
             <p>WorkflowProof is a local preflight for n8n exports: actionable evidence for reliability, duplicate actions, security, data safety and AI risk—without uploading your workflow.</p>
+            <div className="landing-tools">
+              <a className="button-link primary" href="/sample-audit.html">See a CRM handoff review</a>
+              <a className="offer-secondary" href="/acquire.html">Evaluate WorkflowProof for your agency</a>
+            </div>
           </section>
           <section className="panel local-intro" aria-labelledby="local-title">
             <div className="eyebrow">FREE LOCAL SCAN · NO SIGN-UP</div>
